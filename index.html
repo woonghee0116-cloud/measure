@@ -2,265 +2,270 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<meta name="theme-color" content="#F2F4F7">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#FFFFFF">
 <title>현미경 길이 재기</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
+@font-face{font-family:"MicroMeasure Sans";src:url("app-font.woff2") format("woff2-variations"),url("app-font.woff2") format("woff2");font-weight:45 920;font-style:normal;font-display:swap}
 :root{
-  --bg:#F2F4F7; --surface:#FFFFFF; --surface-2:#F5F7FA; --ink:#0F1B2D; --ink-2:#334155; --muted:#64748B; --line:#E3E8EF;
-  --accent:#0E8F86; --accent-strong:#0A6F68; --accent-soft:#E1F3F1; --accent-ink:#FFFFFF;
-  --viewer:#0B1220; --glass:rgba(11,18,32,.76);
-  --len:#FFD233; --wid:#3FD8F2; --cal:#FF5CC8;
-  --len-ink:#0E8F86; --wid-ink:#0284C7;
-  --warn:#8A5300; --warn-soft:#FFF4DE; --danger:#D64545; --danger-soft:#FDECEC; --ok:#15803D; --ok-soft:#E7F6EC;
-  --r-lg:24px; --r-md:16px; --r-sm:12px;
-  --shadow:0 12px 32px rgba(15,27,45,.14),0 2px 6px rgba(15,27,45,.06);
-  --shadow-sm:0 2px 8px rgba(15,27,45,.08);
+  --g50:#F9FAFB; --g100:#F2F4F6; --g200:#E5E8EB; --g300:#D1D6DB; --g400:#B0B8C1; --g500:#6B7684; --g600:#4E5968; --g700:#3D4754; --g800:#333D4B; --g900:#191F28;
+  --accent:#0B7F75; --accent-press:#08665E; --accent-soft:#E4F4F2; --accent-text:#086A62;
+  --viewer:#0A0F1A; --glass:rgba(10,15,26,.72); --glass-line:rgba(255,255,255,.10);
+  --len:#FFD233; --wid:#3FD8F2; --cal:#FF5CC8; --len-ink:#0B7F75; --wid-ink:#0369A1;
+  --danger:#F04452; --danger-soft:#FFEEF0; --warn:#A65A00; --warn-soft:#FFF5E6;
+  --ease:cubic-bezier(.2,.8,.2,1);
+  --shadow-card:0 18px 48px rgba(0,0,0,.30),0 2px 8px rgba(0,0,0,.12);
+  --shadow-soft:0 1px 2px rgba(0,0,0,.04),0 6px 20px rgba(25,31,40,.06);
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{margin:0;height:100%}
 body{
-  font-family:"Pretendard Variable",Pretendard,system-ui,-apple-system,"Noto Sans KR","Apple SD Gothic Neo",sans-serif;
-  background:var(--bg);color:var(--ink);font-size:17px;line-height:1.5;letter-spacing:-.01em;
-  display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden;
-  -webkit-tap-highlight-color:transparent;overscroll-behavior:none;
+  font-family:"MicroMeasure Sans","Pretendard Variable",Pretendard,system-ui,-apple-system,"Noto Sans KR","Apple SD Gothic Neo",sans-serif;
+  color:var(--g900);background:#fff;font-size:17px;line-height:1.5;letter-spacing:-.015em;font-weight:500;
+  height:100vh;height:100dvh;overflow:hidden;-webkit-tap-highlight-color:transparent;overscroll-behavior:none;
+  -webkit-font-smoothing:antialiased;
 }
-button{font:inherit;color:inherit;cursor:pointer}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
 h1,h2,h3,p{margin:0}
 .num{font-variant-numeric:tabular-nums}
 .ic{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .ic.sm{width:18px;height:18px}
-.ic.xl{width:44px;height:44px;stroke-width:1.6}
 
-/* ---------- 상단 바 ---------- */
-.appbar{display:flex;align-items:center;gap:12px;height:64px;padding:0 14px;background:var(--surface);border-bottom:1px solid var(--line);flex:none}
-.brand{display:flex;align-items:center;gap:10px;border:0;background:none;padding:6px 8px;border-radius:12px;font-weight:800;font-size:18px;white-space:nowrap}
-.logo{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:var(--accent);color:#fff}
-.logo .ic{width:20px;height:20px}
-.progress{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-width:0}
-.progress button{display:flex;align-items:center;gap:8px;border:0;background:none;padding:6px 10px;border-radius:999px;font-weight:700;color:var(--muted);font-size:16px;min-height:44px}
-.progress button:disabled{cursor:default;opacity:.55}
-.progress .dot{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;border:2px solid var(--line);background:var(--surface);font-size:14px;font-weight:800;color:var(--muted)}
-.progress .bar{width:36px;height:2px;border-radius:2px;background:var(--line)}
-.progress button.done .dot{background:var(--accent);border-color:var(--accent);color:#fff}
-.progress button.active{color:var(--ink);background:var(--accent-soft)}
-.progress button.active .dot{border-color:var(--accent);color:var(--accent);background:#fff}
-.progress .bar.done{background:var(--accent)}
-.textbtn{display:flex;align-items:center;gap:6px;border:0;background:none;padding:8px 12px;border-radius:12px;font-weight:700;font-size:16px;min-height:44px;color:var(--ink-2)}
-.textbtn.danger{color:var(--danger)}
-.textbtn:hover{background:var(--surface-2)}
-.banner{padding:8px 16px;font-size:15px;font-weight:600;background:var(--warn-soft);color:var(--warn);flex:none}
+/* ---------- 화면 전환 ---------- */
+.screen{position:absolute;inset:0;opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity .28s var(--ease),transform .28s var(--ease),visibility 0s .28s}
+.screen.active{opacity:1;visibility:visible;transform:none;transition:opacity .28s var(--ease),transform .28s var(--ease)}
+.page{display:flex;flex-direction:column;background:#fff}
+.page.gray{background:var(--g100)}
+.page-scroll{flex:1;min-height:0;overflow:auto}
+.wrap{max-width:1040px;margin:0 auto;padding:0 24px}
 
-main{flex:1;min-height:0;position:relative}
-.step{display:none;height:100%}
-.step.active{display:block}
-.scroll{overflow:auto}
-
-/* ---------- 공통 요소 ---------- */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:var(--r-sm);min-height:52px;padding:8px 16px;font-size:17px;font-weight:700;width:100%;transition:transform .08s,background .15s,border-color .15s}
-.btn:active{transform:scale(.98)}
-.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.btn.primary:not(:disabled):hover{background:var(--accent-strong)}
-.btn.tonal{background:var(--accent-soft);border-color:transparent;color:var(--accent-strong)}
-.btn.danger{background:var(--danger);border-color:var(--danger);color:#fff}
-.btn.ghost{background:transparent;border-color:transparent}
-.btn.lg{min-height:58px;font-size:18px;border-radius:var(--r-md)}
-.btn.sm{min-height:40px;font-size:15px;width:auto;padding:6px 12px}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.seg{display:flex;gap:4px;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:4px}
-.seg button{flex:1;border:0;background:transparent;border-radius:10px;min-height:48px;padding:6px 8px;font-weight:700;font-size:16px;color:var(--ink-2);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.2}
-.seg button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm)}
-.seg button:disabled{opacity:.4;cursor:not-allowed}
-.seg .tag{font-size:12px;font-weight:600;color:var(--muted);margin-top:2px}
-.seg .tag.ok{color:var(--ok)}
-.label{font-size:14px;font-weight:700;color:var(--muted);letter-spacing:0}
-.note{display:flex;gap:10px;align-items:flex-start;background:var(--surface-2);border-radius:var(--r-sm);padding:12px 14px;font-size:15px;color:var(--ink-2)}
-.note .ic{margin-top:1px}
-.note.warn{background:var(--warn-soft);color:var(--warn);font-weight:600}
-.note.ok{background:var(--ok-soft);color:var(--ok);font-weight:600}
-input[type=text],input[type=number]{font:inherit;font-size:18px;padding:10px 14px;border:1.5px solid var(--line);border-radius:var(--r-sm);min-height:52px;width:100%;color:var(--ink);background:var(--surface);outline:none;transition:border-color .15s,box-shadow .15s}
-input[type=text]:focus,input[type=number]:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
-input[type=range]{width:100%;height:36px;accent-color:var(--accent)}
+/* ---------- 공통 버튼, 입력 ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:56px;padding:0 20px;border-radius:16px;font-size:17px;font-weight:700;width:100%;background:var(--g100);color:var(--g800);transition:transform .1s,background .15s,opacity .15s;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.primary:not(:disabled):active{background:var(--accent-press)}
+.btn.xl{height:60px;font-size:18px;border-radius:18px}
+.btn.on-dark{background:rgba(255,255,255,.12);color:#fff}
+.btnrow{display:grid;grid-template-columns:1fr 2fr;gap:10px}
+.btnrow.even{grid-template-columns:1fr 1fr}
+.linkbtn{font-size:15px;font-weight:600;color:var(--g600);padding:10px 12px;border-radius:10px}
+.linkbtn.danger{color:var(--danger)}
+.iconbtn{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;color:var(--g700)}
+.iconbtn:active{background:var(--g100)}
+.glassbtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;min-width:48px;padding:0 14px;border-radius:999px;background:var(--glass);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid var(--glass-line);color:#fff;font-weight:600;font-size:15px}
+.glassbtn.icononly{padding:0;width:48px}
+.glassbtn .cnt{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 7px;border-radius:999px;background:var(--accent);font-size:13px;font-weight:700}
+.glassbtn .cnt.bump{animation:bump .5s var(--ease)}
+input[type=text],input[type=number]{font:inherit;font-size:18px;font-weight:600;height:56px;padding:0 16px;border:0;border-radius:14px;width:100%;color:var(--g900);background:var(--g100);outline:none;transition:box-shadow .15s,background .15s}
+input[type=text]::placeholder{color:var(--g400);font-weight:500}
+input[type=text]:focus,input[type=number]:focus{background:#fff;box-shadow:inset 0 0 0 2px var(--accent)}
+input[type=range]{width:100%;height:32px;accent-color:var(--accent);margin:0}
 .chips{display:flex;gap:8px;flex-wrap:wrap}
-.chips button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-size:15px;font-weight:600;min-height:40px;color:var(--ink-2)}
-.chips button.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-strong)}
-.instr{font-size:18px;font-weight:800;line-height:1.4}
-.instr .sub{display:block;font-size:14px;font-weight:500;color:var(--muted);margin-top:4px;line-height:1.5}
-.tile{display:flex;flex-direction:column;gap:2px;background:var(--surface-2);border-radius:var(--r-md);padding:12px 14px}
-.tile .k{font-size:13px;font-weight:700;color:var(--muted)}
-.tile .v{font-size:26px;font-weight:800;line-height:1.2}
-.tile .v small{font-size:15px;font-weight:600;color:var(--muted);margin-left:4px}
+.chip{height:40px;padding:0 14px;border-radius:999px;background:var(--g100);color:var(--g700);font-size:15px;font-weight:600}
+.chip.on{background:var(--accent-soft);color:var(--accent-text)}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px;background:var(--g100);border-radius:16px;padding:5px}
+.seg button{height:52px;border-radius:12px;font-weight:700;font-size:17px;color:var(--g600);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15}
+.seg button small{font-size:12px;font-weight:600;color:var(--g600)}
+.seg button.on{background:#fff;color:var(--g900);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.seg button.on small{color:var(--accent-text)}
+.seg button:disabled{opacity:.4;cursor:not-allowed}
+.field{display:flex;flex-direction:column;gap:10px}
+.flabel{font-size:15px;font-weight:600;color:var(--g600)}
+.note{display:flex;gap:10px;align-items:flex-start;border-radius:14px;padding:14px 16px;font-size:15px;line-height:1.5;background:var(--g100);color:var(--g700)}
+.note.warn{background:var(--warn-soft);color:var(--warn);font-weight:600}
+.note .ic{margin-top:1px}
+
+/* ---------- 큰 숫자 ---------- */
+.big{font-size:56px;font-weight:700;letter-spacing:-.035em;line-height:1;font-variant-numeric:tabular-nums}
+.big small{font-size:22px;font-weight:600;letter-spacing:-.01em;color:var(--g500);margin-left:4px}
+.big.md{font-size:40px}
+.big.md small{font-size:18px}
+.k{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--g600)}
+.k i{width:8px;height:8px;border-radius:50%;display:inline-block}
 
 /* ---------- 홈 ---------- */
-.home{max-width:1040px;margin:0 auto;padding:40px 24px 48px;display:flex;flex-direction:column;gap:32px}
-.hero{display:flex;flex-direction:column;gap:14px;max-width:640px}
-.eyebrow{display:inline-flex;align-self:flex-start;gap:6px;align-items:center;font-size:14px;font-weight:700;color:var(--accent-strong);background:var(--accent-soft);padding:6px 12px;border-radius:999px}
-.hero h1{font-size:40px;line-height:1.2;letter-spacing:-.03em;font-weight:800}
-.hero p{font-size:18px;color:var(--ink-2)}
-.resume{display:flex;align-items:center;gap:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px 20px;box-shadow:var(--shadow-sm);flex-wrap:wrap}
-.resume .info{flex:1;min-width:220px}
-.resume .info b{font-size:18px}
-.resume .info p{font-size:15px;color:var(--muted);margin-top:2px}
-.resume .acts{display:flex;gap:10px}
-.resume .acts .btn{width:auto}
-.howto{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.how{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column}
-.how svg.illus{display:block;width:100%;height:auto;background:var(--viewer)}
-.how .txt{padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px}
-.how .n{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-size:14px;font-weight:800}
-.how h3{font-size:19px;display:flex;align-items:center;gap:8px}
-.how p{font-size:15px;color:var(--muted)}
+.hhead{display:flex;align-items:center;gap:10px;height:72px}
+.logo{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:var(--accent);color:#fff}
+.logo .ic{width:20px;height:20px}
+.appname{font-size:17px;font-weight:700}
+.hgrid{display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:start;padding:40px 0 140px}
+.kicker{font-size:15px;font-weight:700;color:var(--accent-text);margin-bottom:12px}
+.htitle{font-size:44px;font-weight:700;letter-spacing:-.04em;line-height:1.22}
+.htitle em{font-style:normal;color:var(--accent)}
+.hsub{font-size:18px;color:var(--g600);margin-top:16px;line-height:1.6}
+.resume{margin-top:28px;border-radius:22px;background:var(--g100);padding:22px}
+.resume b{font-size:18px;font-weight:700}
+.resume p{font-size:15px;color:var(--g600);margin:4px 0 16px}
+.stat{display:flex;gap:28px;margin-top:28px}
+.stat .v{font-size:32px;font-weight:700;letter-spacing:-.03em}
+.stat .v small{font-size:16px;color:var(--g500);font-weight:600;margin-left:2px}
+.stat .l{font-size:14px;color:var(--g500);font-weight:600}
+.list{display:flex;flex-direction:column;background:#fff;border-radius:24px}
+.lhead{font-size:15px;font-weight:600;color:var(--g500);padding:0 4px 10px}
+.lrow{display:flex;align-items:center;gap:16px;padding:16px 8px;border-radius:16px;text-align:left;width:100%;transition:background .15s}
+.lrow:active{background:var(--g50)}
+.lrow:disabled{opacity:.5;cursor:default}
+.lic{position:relative;display:grid;place-items:center;width:48px;height:48px;border-radius:16px;background:var(--g100);color:var(--g500);flex:none}
+.lrow.done .lic{background:var(--accent-soft);color:var(--accent)}
+.lrow.done .lic::after{content:"";position:absolute;right:-3px;bottom:-3px;width:18px;height:18px;border-radius:50%;background:var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/11px no-repeat;border:2px solid #fff}
+.lt{flex:1;min-width:0;display:flex;flex-direction:column}
+.lt b{font-size:18px;font-weight:700}
+.lt span{font-size:15px;color:var(--g500);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lrow .chev{color:var(--g300)}
+.howto{margin-top:28px;display:flex;flex-direction:column;gap:14px;padding:0 8px}
+.howto .h{font-size:15px;font-weight:600;color:var(--g500)}
+.howto ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:12px}
+.howto li{display:flex;gap:12px;font-size:15px;color:var(--g700);line-height:1.5}
+.howto li span{display:grid;place-items:center;width:24px;height:24px;border-radius:8px;background:var(--g100);color:var(--g600);font-size:13px;font-weight:700;flex:none}
+.bottomcta{position:absolute;left:0;right:0;bottom:0;padding:24px 24px calc(20px + env(safe-area-inset-bottom));background:linear-gradient(rgba(255,255,255,0),#fff 32%);display:flex;flex-direction:column;align-items:center;gap:6px}
+.page.gray .btn:not(.primary){background:#fff;box-shadow:var(--shadow-soft)}
+.page.gray .bottomcta{background:linear-gradient(rgba(242,244,246,0),var(--g100) 32%)}
+.bottomcta .inner{width:100%;max-width:520px;display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.bottomcta .inner.row{flex-direction:row}
 
-/* ---------- 작업 화면 (보정, 측정) ---------- */
-.stage{position:relative;height:100%;background:var(--viewer);overflow:hidden}
+/* ---------- 상단 바 (밝은 화면) ---------- */
+.lbar{display:flex;align-items:center;gap:6px;height:64px;padding:0 12px;flex:none}
+.lbar .ttl{flex:1;font-size:18px;font-weight:700;text-align:center;margin-right:48px}
+.lbar .ttl.left{text-align:left;margin:0}
+
+/* ---------- 도구 화면 (보정, 측정) ---------- */
+.tool{background:var(--viewer)}
 .viewer{position:absolute;inset:0;touch-action:none;user-select:none;-webkit-user-select:none}
 .viewer canvas.main{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
-.viewer canvas.loupe{position:absolute;width:140px;height:140px;border-radius:50%;border:3px solid #fff;box-shadow:0 8px 24px rgba(0,0,0,.5);pointer-events:none;display:none;z-index:3}
-.viewer .empty{position:absolute;inset:0 410px 0 90px;display:grid;place-items:center;padding:24px;color:#CBD5E1;text-align:center}
-.empty-in{display:flex;flex-direction:column;align-items:center;gap:14px;max-width:420px}
-.empty-in p{font-size:19px;font-weight:700;color:#E2E8F0}
-.empty-in .row2{width:100%}
-.empty-in .btn:not(.primary){background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);color:#fff}
+.viewer canvas.loupe{position:absolute;width:140px;height:140px;border-radius:50%;border:3px solid #fff;box-shadow:0 10px 30px rgba(0,0,0,.5);pointer-events:none;display:none;z-index:6}
+.viewer .empty{position:absolute;inset:70px 440px 20px 90px;display:grid;place-items:center;pointer-events:none}
+.guidebox{display:flex;flex-direction:column;align-items:center;gap:16px;color:rgba(255,255,255,.6);font-size:15px;font-weight:600;text-align:center}
+.guidebox svg{width:min(420px,100%);height:auto;border-radius:24px;opacity:.9}
+.tbar{position:absolute;top:0;left:0;right:0;z-index:4;display:flex;align-items:center;gap:10px;padding:14px 16px 28px;background:linear-gradient(rgba(10,15,26,.82),rgba(10,15,26,0));color:#fff;pointer-events:none}
+.tbar > *{pointer-events:auto}
+.tbar .tt{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25;padding-left:4px}
+.tbar .tt b{font-size:18px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tbar .tt span{font-size:14px;color:rgba(255,255,255,.65);font-weight:500}
+.mpills{display:flex;gap:4px;padding:4px;border-radius:999px;background:var(--glass);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid var(--glass-line)}
+.mpills button{height:40px;padding:0 14px;border-radius:999px;color:rgba(255,255,255,.7);font-weight:700;font-size:15px;display:flex;align-items:center;gap:6px}
+.mpills button.on{background:#fff;color:var(--g900)}
+.mpills .ok{width:16px;height:16px;border-radius:50%;background:var(--accent);display:grid;place-items:center}
+.mpills .ok .ic{width:11px;height:11px;stroke-width:3.5;color:#fff}
+.zoom{position:absolute;left:16px;top:50%;transform:translateY(-50%);z-index:3;display:flex;flex-direction:column;gap:2px;padding:4px;border-radius:999px;background:var(--glass);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid var(--glass-line)}
+.zoom button{width:48px;height:48px;border-radius:999px;color:#fff;display:grid;place-items:center}
+.zoom button:active{background:rgba(255,255,255,.12)}
+.dock{position:absolute;z-index:5;right:20px;bottom:20px;width:400px;display:flex;flex-direction:column;gap:12px;align-items:stretch}
+.tools{align-self:center;display:flex;gap:4px;padding:5px;border-radius:999px;background:var(--glass);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid var(--glass-line)}
+.tools button{height:46px;padding:0 18px;border-radius:999px;color:rgba(255,255,255,.72);font-weight:700;font-size:15px;display:flex;gap:7px;align-items:center;transition:background .2s,color .2s}
+.tools button .ic{width:20px;height:20px}
+.tools button.on{background:#fff;color:var(--g900)}
+.card{background:#fff;border-radius:28px;padding:22px;box-shadow:var(--shadow-card);display:flex;flex-direction:column;gap:16px;animation:rise .35s var(--ease)}
+.card .title{font-size:22px;font-weight:700;letter-spacing:-.03em;line-height:1.35}
+.card .cap{font-size:15px;color:var(--g600);line-height:1.55;margin-top:6px}
+.card .cap b{color:var(--g800)}
+.card .top{display:flex;align-items:flex-start;gap:12px}
+.card .top > div{flex:1}
+.dots{display:flex;gap:6px;margin-bottom:10px}
+.dots i{width:22px;height:6px;border-radius:3px;background:var(--g200);transition:background .2s}
+.dots i.on{background:var(--accent)}
+.dots i.cur{background:var(--g400)}
+.vals{display:flex;gap:28px;flex-wrap:wrap}
+.val{display:flex;flex-direction:column;gap:6px}
+.val .mm{font-size:14px;color:var(--g500);font-weight:600}
+.okbadge{display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:var(--accent-soft);color:var(--accent);animation:popin .45s var(--ease)}
+.okbadge .ic{width:26px;height:26px;stroke-width:2.6}
+.mini{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--g600);font-weight:600;padding-top:14px;border-top:1px solid var(--g100)}
+.mini b{color:var(--accent-text)}
+.mini button{margin-left:auto;font-size:14px;font-weight:700;color:var(--accent-text)}
+.sens{display:flex;flex-direction:column;gap:2px}
+.sens .row{display:flex;justify-content:space-between;font-size:14px;font-weight:600;color:var(--g600)}
+.ticksedit{display:flex;align-items:center;gap:10px}
+.ticksedit input{width:96px;height:44px;text-align:center}
 
-.rail{position:absolute;left:14px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:4px;padding:6px;background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08);border-radius:20px;z-index:2}
-.rail button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:62px;height:60px;border:0;border-radius:14px;background:transparent;color:#CBD5E1;font-size:11px;font-weight:700;transition:background .15s,color .15s}
-.rail button .ic{width:24px;height:24px}
-.rail button:hover{background:rgba(255,255,255,.08)}
-.rail button.on{background:var(--accent);color:#fff}
-.rail .sep{height:1px;background:rgba(255,255,255,.14);margin:4px 8px}
+.menu{position:absolute;z-index:8;top:72px;right:16px;min-width:250px;background:#fff;border-radius:18px;padding:6px;box-shadow:var(--shadow-card);animation:rise .2s var(--ease)}
+.menu button{display:flex;align-items:center;gap:12px;width:100%;height:52px;padding:0 14px;border-radius:12px;font-size:16px;font-weight:600;color:var(--g800);text-align:left}
+.menu button:active,.menu button:hover{background:var(--g100)}
+.menu .ic{color:var(--g600)}
 
-.fchip{position:absolute;top:14px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:8px 10px 8px 16px;background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08);border-radius:999px;color:#fff;font-size:16px;font-weight:700;z-index:2;max-width:calc(100% - 28px);white-space:nowrap;overflow:hidden}
-.fchip .pill{display:inline-flex;align-items:baseline;gap:6px;padding:4px 12px;border-radius:999px;background:rgba(255,255,255,.08)}
-.fchip .pill i{font-style:normal;font-size:13px;font-weight:800;color:#0B1220;padding:1px 8px;border-radius:999px}
-.fchip .pill b{font-size:20px;font-weight:800}
-.fchip .pill small{font-size:13px;color:#94A3B8;font-weight:600}
-.fchip .msg{padding-right:8px;overflow:hidden;text-overflow:ellipsis}
+/* ---------- 사진 넣기 ---------- */
+.pgrid{display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:start;padding:12px 0 140px}
+.ph1{font-size:32px;font-weight:700;letter-spacing:-.035em;line-height:1.3;margin-bottom:28px}
+.ptile{position:relative;border-radius:24px;background:var(--viewer);aspect-ratio:4/3;overflow:hidden;display:grid;place-items:center}
+.ptile img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.ptile .pempty{display:flex;flex-direction:column;align-items:center;gap:16px;padding:24px;width:100%;max-width:360px;color:rgba(255,255,255,.7);text-align:center}
+.ptile .pempty p{font-size:16px;font-weight:600}
+.ptile .pempty .btnrow{width:100%;grid-template-columns:1.4fr 1fr}
+.ptile .size{position:absolute;left:14px;bottom:14px;background:var(--glass);color:#fff;font-size:13px;font-weight:600;padding:5px 12px;border-radius:999px}
+.ptile .redo{position:absolute;right:14px;bottom:14px;display:flex;gap:8px}
+.pform{display:flex;flex-direction:column;gap:28px}
 
-.sheet{position:absolute;top:14px;right:14px;bottom:14px;width:384px;background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow);display:flex;flex-direction:column;z-index:4;transition:transform .3s cubic-bezier(.2,.8,.2,1)}
-.sheet-head{display:flex;align-items:center;gap:10px;padding:16px 14px 10px 20px;flex:none}
-.sheet-head .grab{display:none}
-.sheet-head .ttl{flex:1;min-width:0}
-.sheet-head h2{font-size:20px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sheet-head .sub{font-size:14px;color:var(--muted);font-weight:600}
-.iconbtn{display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:12px;background:var(--surface-2);color:var(--ink-2);flex:none}
-.sheet-body{flex:1;min-height:0;overflow:auto;padding:6px 20px 16px;display:flex;flex-direction:column;gap:16px}
-.sheet-foot{flex:none;padding:12px 20px 18px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
-.sheet-open{position:absolute;top:14px;right:14px;z-index:3;display:none;align-items:center;gap:8px;border:0;background:var(--surface);color:var(--ink);font-weight:700;padding:10px 16px;border-radius:999px;box-shadow:var(--shadow);min-height:48px}
-.stage.collapsed .sheet{transform:translateX(calc(100% + 24px))}
-.stage.collapsed .sheet-open{display:flex}
-.stage.collapsed .viewer .empty{right:0}
-.group{display:flex;flex-direction:column;gap:8px}
-.divider{height:1px;background:var(--line)}
-
-.guide{display:block;width:100%;height:auto;border-radius:var(--r-md);background:var(--viewer)}
-.savedcal{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid var(--line);border-radius:var(--r-md)}
-.savedcal .badge{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--surface-2);font-weight:800;font-size:15px;color:var(--muted);flex:none}
-.savedcal.ok{border-color:#BFE3DF;background:#F4FBFA}
-.savedcal.ok .badge{background:var(--accent);color:#fff}
-.savedcal .t{flex:1;font-size:15px;line-height:1.35}
-.savedcal .t b{font-size:17px}
-.savedcal .t span{color:var(--muted);font-size:13px}
-.ticks{display:flex;align-items:center;gap:10px}
-.ticks input{width:100px;text-align:center;font-weight:800}
-
-/* 측정 시트 탭 */
-.tabs{display:flex;gap:4px;margin:0 20px 6px;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:4px;flex:none}
-.tabs button{flex:1;border:0;background:transparent;border-radius:10px;min-height:44px;font-weight:700;font-size:16px;color:var(--ink-2);display:flex;align-items:center;justify-content:center;gap:6px}
-.tabs button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm)}
-.tabs .cnt{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 6px;border-radius:999px;background:var(--accent);color:#fff;font-size:13px;font-weight:800}
-.tabs .cnt.bump{animation:bump .5s ease}
-.tabpane{display:flex;flex-direction:column;gap:16px}
-.mini{display:flex;align-items:center;gap:10px;background:var(--accent-soft);color:var(--accent-strong);border-radius:var(--r-md);padding:10px 12px 10px 14px;font-size:15px;font-weight:600}
-.mini .t{flex:1}
-.mini b{font-weight:800}
-.mini button{border:0;background:#fff;border-radius:10px;padding:6px 10px;font-size:14px;font-weight:700;color:var(--accent-strong);min-height:36px}
-
-/* 결과 */
-.sum{border:1.5px solid var(--line);border-radius:var(--r-md);padding:14px;display:flex;flex-direction:column;gap:10px}
-.sum-head{display:flex;align-items:center;gap:8px}
-.sum-head b{font-size:18px;flex:1}
-.pill-n{font-size:13px;font-weight:800;padding:3px 10px;border-radius:999px;background:var(--surface-2);color:var(--ink-2)}
-.metric{display:flex;flex-direction:column;gap:2px}
-.metric .k{font-size:13px;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:6px}
-.metric .k i{width:10px;height:10px;border-radius:50%;display:inline-block}
-.metric .v{font-size:24px;font-weight:800;line-height:1.2}
-.metric .v small{font-size:14px;color:var(--muted);font-weight:600;margin-left:4px}
-.plot{display:block;width:100%;height:auto}
-.rlist{display:flex;flex-direction:column;gap:8px}
-.ritem{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 12px;border-radius:var(--r-sm);background:var(--surface-2)}
-.ritem .no{display:grid;place-items:center;min-width:34px;height:34px;padding:0 6px;border-radius:10px;background:var(--surface);font-weight:800;font-size:15px;box-shadow:var(--shadow-sm)}
-.ritem .t{flex:1;min-width:0;line-height:1.3}
-.ritem .t b{font-size:16px}
-.ritem .t span{display:block;font-size:13px;color:var(--muted)}
-.ritem .vals{text-align:right;line-height:1.3;font-weight:800;font-size:16px}
-.ritem .vals span{display:block;font-size:13px;color:var(--muted);font-weight:600}
-.ritem .del{display:grid;place-items:center;width:40px;height:40px;border:0;border-radius:10px;background:transparent;color:var(--muted)}
-.ritem .del:hover{background:var(--danger-soft);color:var(--danger)}
-.ritem.enter{animation:enter .45s cubic-bezier(.2,.8,.2,1)}
-.emptyres{text-align:center;color:var(--muted);font-size:15px;padding:24px 8px}
-
-/* ---------- 2단계 ---------- */
-.center{min-height:100%;padding:28px 20px;display:flex;justify-content:center;align-items:flex-start}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px;width:100%;max-width:640px;display:flex;flex-direction:column;gap:22px;box-shadow:var(--shadow-sm)}
-.card h2{font-size:24px;font-weight:800}
-.card .lead{color:var(--muted);font-size:15px;margin-top:4px}
-.phototile{position:relative;border-radius:var(--r-md);background:var(--viewer);aspect-ratio:4/3;overflow:hidden;display:grid;place-items:center}
-.phototile img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
-.phototile .size{position:absolute;left:12px;bottom:12px;background:var(--glass);color:#fff;font-size:13px;font-weight:700;padding:4px 10px;border-radius:999px}
+/* ---------- 결과 ---------- */
+.rh{padding:8px 0 24px}
+.rh h1{font-size:32px;font-weight:700;letter-spacing:-.035em;line-height:1.3}
+.rh p{font-size:17px;color:var(--g600);margin-top:8px}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.tcard{background:#fff;border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:18px;box-shadow:var(--shadow-soft)}
+.tcard .th{display:flex;align-items:center;gap:10px}
+.tcard .th b{font-size:20px;font-weight:700;flex:1}
+.tcard .n{font-size:14px;font-weight:700;color:var(--g600);background:var(--g100);padding:4px 10px;border-radius:999px}
+.tcard .metrics{display:flex;gap:32px;flex-wrap:wrap}
+.tcard .range{font-size:14px;color:var(--g500);font-weight:500}
+.chart{display:block;width:100%;height:auto;overflow:visible}
+.records{background:#fff;border-radius:24px;padding:8px 12px;margin-top:16px;box-shadow:var(--shadow-soft)}
+.records .rhd{font-size:15px;font-weight:600;color:var(--g500);padding:14px 8px 6px}
+.rrow{display:flex;align-items:center;gap:14px;padding:12px 8px;border-radius:14px}
+.rrow + .rrow{border-top:1px solid var(--g100)}
+.rrow .no{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:var(--g100);font-weight:700;font-size:15px;color:var(--g700);flex:none}
+.rrow .t{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.35}
+.rrow .t b{font-size:16px;font-weight:700}
+.rrow .t span{font-size:14px;color:var(--g500)}
+.rrow .v{text-align:right;display:flex;flex-direction:column;line-height:1.35}
+.rrow .v b{font-size:17px;font-weight:700}
+.rrow .v span{font-size:14px;color:var(--g500)}
+.rrow .del{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;color:var(--g400)}
+.rrow .del:active{background:var(--danger-soft);color:var(--danger)}
+.rrow.enter{animation:enter .5s var(--ease)}
+.rempty{text-align:center;padding:80px 20px;color:var(--g500)}
+.rempty b{display:block;font-size:22px;color:var(--g800);margin-bottom:8px}
 
 /* ---------- 모달, 토스트 ---------- */
-.modal{position:fixed;inset:0;background:rgba(11,18,32,.5);display:grid;place-items:center;z-index:50;padding:16px;animation:fade .2s}
-.modal-box{background:var(--surface);border-radius:var(--r-lg);padding:24px;max-width:480px;width:100%;display:flex;flex-direction:column;gap:14px;box-shadow:var(--shadow);animation:pop .25s cubic-bezier(.2,.8,.2,1)}
-.modal-box h3{font-size:21px;font-weight:800}
-.modal-box p{color:var(--ink-2)}
-.modal-actions{display:flex;flex-direction:column;gap:10px;margin-top:4px}
-.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;background:var(--ink);color:#fff;padding:14px 20px;border-radius:16px;font-size:16px;font-weight:600;z-index:60;max-width:calc(100% - 32px);box-shadow:var(--shadow);animation:toast .3s cubic-bezier(.2,.8,.2,1)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:end center;z-index:50;padding:16px;animation:fade .2s}
+.modal-box{background:#fff;border-radius:28px;padding:28px 24px 20px;max-width:480px;width:100%;display:flex;flex-direction:column;gap:12px;animation:rise .3s var(--ease);margin-bottom:8px}
+.modal-box h3{font-size:22px;font-weight:700;letter-spacing:-.03em}
+.modal-box p{color:var(--g600);font-size:16px}
+.modal-actions{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.toast{position:fixed;left:50%;top:84px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;background:rgba(25,31,40,.94);color:#fff;padding:13px 20px 13px 16px;border-radius:999px;font-size:15px;font-weight:600;z-index:60;max-width:calc(100% - 32px);box-shadow:0 10px 30px rgba(0,0,0,.25);animation:drop .35s var(--ease)}
 .toast .ic{color:#5EEAD4}
+.toast .tact{margin-left:6px;padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.14);color:#5EEAD4;font-weight:700;font-size:15px}
 
-@keyframes enter{from{opacity:0;transform:translateY(-10px) scale(.97);background:var(--accent-soft)}to{opacity:1;transform:none}}
-@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
-@keyframes toast{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translate(-50%,0)}}
-@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes drop{from{opacity:0;transform:translate(-50%,-12px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes popin{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+@keyframes enter{from{opacity:0;transform:translateY(-8px);background:var(--accent-soft)}to{opacity:1;transform:none}}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.4)}100%{transform:scale(1)}}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
-/* ---------- 세로 화면 ---------- */
+/* ---------- 세로 화면, 좁은 화면 ---------- */
 @media (max-width:900px),(orientation:portrait){
-  .appbar{height:auto;min-height:60px;flex-wrap:wrap;padding:8px 10px}
-  .progress .lbl{display:none}
-  .progress button.active .lbl{display:inline}
-  .progress .bar{width:20px}
-  .home{padding:28px 18px 40px}
-  .hero h1{font-size:32px}
-  .howto{grid-template-columns:1fr}
-  .how{flex-direction:row}
-  .how svg.illus{width:42%;min-width:150px}
-  .rail{top:14px;left:14px;transform:none;flex-direction:row}
-  .rail button{width:54px;height:54px}
-  .rail .sep{width:1px;height:auto;margin:8px 4px}
-  .fchip{top:84px}
-  .viewer .empty{inset:76px 0 48% 0}
-  .stage.collapsed .viewer .empty{bottom:76px}
-  .sheet{top:auto;left:0;right:0;bottom:0;width:auto;height:48%;border-radius:var(--r-lg) var(--r-lg) 0 0}
-  .sheet-head{padding-top:8px;flex-wrap:wrap}
-  .sheet-head .grab{display:block;width:100%;height:14px;position:relative}
-  .sheet-head .grab::after{content:"";position:absolute;left:50%;top:4px;width:44px;height:5px;border-radius:3px;background:var(--line);transform:translateX(-50%)}
-  .stage.collapsed .sheet{transform:translateY(calc(100% - 76px))}
-  .stage.collapsed .sheet-open{display:none}
-  .sheet-head .collapse-ic{transform:rotate(90deg)}
-  .stage.collapsed .sheet-head .collapse-ic{transform:rotate(-90deg)}
+  .wrap{padding:0 20px}
+  .hgrid,.pgrid,.rgrid{grid-template-columns:1fr}
+  .hgrid{gap:36px;padding:20px 0 150px}
+  .htitle{font-size:36px}
+  .pgrid{gap:28px}
+  .dock{left:16px;right:16px;bottom:16px;width:auto;max-width:600px;margin:0 auto}
+  .tbar .tt span{display:none}
+  .tbar .glassbtn .lbl{display:none}
+  .viewer .empty{inset:80px 16px 44% 16px}
 }
 @media (max-width:560px){
-  .brand .name{display:none}
+  .htitle{font-size:30px}
+  .big{font-size:46px}
+  .tools button{padding:0 12px}
+  .mpills button{padding:0 10px}
 }
 </style>
 </head>
 <body>
 
-<!-- 아이콘 -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-microscope" viewBox="0 0 24 24"><path d="M6 18h8M3 22h18M14 22a7 7 0 1 0 0-14h-1M9 14h2M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2ZM12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/></symbol>
   <symbol id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3"/></symbol>
@@ -268,220 +273,161 @@ input[type=range]{width:100%;height:36px;accent-color:var(--accent)}
   <symbol id="i-two" viewBox="0 0 24 24"><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="5" r="2.5"/><path d="M7 17 17 7"/></symbol>
   <symbol id="i-four" viewBox="0 0 24 24"><path d="M6.5 17.5l11-11M9 9l6 6"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="7.5" cy="7.5" r="2"/><circle cx="16.5" cy="16.5" r="2"/></symbol>
   <symbol id="i-object" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="9.5" ry="6" stroke-dasharray="2.6 2.6"/><path d="M12 9.5v5M9.5 12h5"/></symbol>
-  <symbol id="i-zin" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7.5"/><path d="m21 21-4.6-4.6M11 8v6M8 11h6"/></symbol>
-  <symbol id="i-zout" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7.5"/><path d="m21 21-4.6-4.6M8 11h6"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
   <symbol id="i-fit" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></symbol>
   <symbol id="i-undo" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></symbol>
-  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
-  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
   <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></symbol>
   <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></symbol>
-  <symbol id="i-exit" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
   <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></symbol>
-  <symbol id="i-panel" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
-  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><circle cx="8" cy="14" r="1.5"/><circle cx="12" cy="10" r="1.5"/><circle cx="16" cy="13" r="1.5"/><circle cx="19" cy="7" r="1.5"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><path d="M3 12h4M17 12h4M12 3v4M12 17v4"/><circle cx="12" cy="12" r="5"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1Z"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4Z"/></symbol>
   <symbol id="i-ruler" viewBox="0 0 24 24"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2M11.5 9.5l2-2M8.5 6.5l2-2M17.5 15.5l2-2"/></symbol>
-  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
 </svg>
 
-<header class="appbar">
-  <button class="brand" id="homeBtn" aria-label="처음 화면"><span class="logo"><svg class="ic"><use href="#i-microscope"/></svg></span><span class="name">현미경 길이 재기</span></button>
-  <nav class="progress" id="progress">
-    <button data-step="1"><span class="dot">1</span><span class="lbl">보정</span></button>
-    <span class="bar" data-bar="1"></span>
-    <button data-step="2"><span class="dot">2</span><span class="lbl">사진 넣기</span></button>
-    <span class="bar" data-bar="2"></span>
-    <button data-step="3"><span class="dot">3</span><span class="lbl">측정</span></button>
-  </nav>
-  <button class="textbtn danger" id="endBtn"><svg class="ic sm"><use href="#i-exit"/></svg><span>측정 끝내기</span></button>
-</header>
-<div id="storageBanner" class="banner" hidden>이 화면에서는 값이 저장되지 않아요. 앱이 닫히면 보정값과 결과가 사라져요.</div>
-
-<main>
-  <!-- 처음 화면 -->
-  <section id="step0" class="step scroll">
-    <div class="home">
-      <div class="hero">
-        <span class="eyebrow"><svg class="ic sm"><use href="#i-microscope"/></svg>생명 탐구 · 세포 크기 재기</span>
-        <h1>현미경 사진으로<br>진짜 크기를 재 봐요</h1>
-        <p>대물 마이크로미터로 보정하고 사진을 터치하면, 실제 길이를 μm로 알려 줘요.</p>
-        <div id="homeAction"></div>
-      </div>
-      <div class="howto" id="howto"></div>
-    </div>
-  </section>
-
-  <!-- 1단계: 보정 -->
-  <section id="step1" class="step">
-    <div class="stage" id="stage1">
-      <div class="viewer" id="calibViewer">
-        <canvas class="main"></canvas>
-        <canvas class="loupe"></canvas>
-        <div class="empty"><div class="empty-in">
-          <svg class="ic xl"><use href="#i-image"/></svg>
-          <p id="calEmptyT"></p>
-          <div class="row2">
-            <button class="btn primary" data-pick="cam" data-for="calib"><svg class="ic"><use href="#i-camera"/></svg>사진 찍기</button>
-            <button class="btn" data-pick="gal" data-for="calib"><svg class="ic"><use href="#i-image"/></svg>갤러리에서 고르기</button>
+<!-- ============ 홈 ============ -->
+<section class="screen page" id="s-home">
+  <div class="page-scroll">
+    <div class="wrap">
+      <header class="hhead"><span class="logo"><svg class="ic"><use href="#i-microscope"/></svg></span><span class="appname">현미경 길이 재기</span></header>
+      <div class="hgrid">
+        <div>
+          <p class="kicker" id="hKicker">생명 탐구 · 세포 크기 재기</p>
+          <h1 class="htitle" id="hTitle"></h1>
+          <p class="hsub" id="hSub"></p>
+          <div id="hStat"></div>
+          <div id="hResume"></div>
+          <div class="howto" style="padding:0;margin-top:40px" id="hHow">
+            <div class="h">이렇게 써요</div>
+            <ol>
+              <li><span>1</span>대물 마이크로미터 사진에서 눈금 0과 100을 터치해 1mm의 크기를 알려 줘요.</li>
+              <li><span>2</span>현미경으로 찍은 사진을 넣고, 배율과 관찰 대상을 골라요.</li>
+              <li><span>3</span>양 끝을 터치하면 실제 길이가 나와요. 여러 개를 재면 평균과 그래프를 볼 수 있어요.</li>
+            </ol>
           </div>
-        </div></div>
-      </div>
-      <div class="rail">
-        <button data-zoom="in"><svg class="ic"><use href="#i-zin"/></svg>확대</button>
-        <button data-zoom="out"><svg class="ic"><use href="#i-zout"/></svg>축소</button>
-        <button data-zoom="fit"><svg class="ic"><use href="#i-fit"/></svg>전체</button>
-      </div>
-      <div class="fchip" id="calChip" hidden></div>
-      <button class="sheet-open" data-sheet-toggle><svg class="ic" style="transform:rotate(180deg)"><use href="#i-panel"/></svg>보정 패널</button>
-      <aside class="sheet">
-        <div class="sheet-head">
-          <div class="grab" data-sheet-toggle></div>
-          <div class="ttl"><h2>1단계 · 보정</h2><div class="sub">1mm가 사진에서 몇 픽셀인지 알아내요</div></div>
-          <button class="iconbtn" data-sheet-toggle aria-label="패널 접기"><svg class="ic collapse-ic"><use href="#i-panel"/></svg></button>
+          <div class="note warn" id="hStorage" style="margin-top:24px" hidden><svg class="ic sm"><use href="#i-alert"/></svg><span>이 화면에서는 값이 저장되지 않아요. 앱이 닫히면 보정값과 결과가 사라져요.</span></div>
         </div>
-        <div class="sheet-body">
-          <div class="seg" id="calMags"></div>
-          <div class="group">
-            <svg class="guide" id="calGuide" viewBox="0 0 320 120"></svg>
-            <div class="instr" id="calInstr"></div>
-          </div>
-          <div class="group">
-            <div class="label">두 점 사이 눈금 수</div>
-            <div class="ticks"><input id="ticks" type="number" inputmode="decimal" min="1" step="1" value="100"><span class="muted" id="ticksInfo"></span></div>
-          </div>
-          <div class="row2">
-            <div class="tile"><span class="k">1mm는</span><span class="v num" id="calNowV">—</span></div>
-            <div class="tile"><span class="k">1픽셀은</span><span class="v num" id="calNowP">—</span></div>
-          </div>
-          <div class="row2">
-            <button id="calReset" class="btn"><svg class="ic"><use href="#i-undo"/></svg>다시 하기</button>
-            <button id="calSave" class="btn primary"><svg class="ic"><use href="#i-check"/></svg>보정 저장</button>
-          </div>
-          <div class="divider"></div>
-          <div class="group">
-            <div class="label">저장된 보정값</div>
-            <div class="group" id="calSaved"></div>
-            <div id="calRatio"></div>
-          </div>
-          <div class="row2" id="calPhotoBtns">
-            <button class="btn" data-pick="cam" data-for="calib"><svg class="ic"><use href="#i-camera"/></svg>다시 찍기</button>
-            <button class="btn" data-pick="gal" data-for="calib"><svg class="ic"><use href="#i-image"/></svg>갤러리</button>
-          </div>
-          <div class="note"><svg class="ic sm"><use href="#i-alert"/></svg><span>측정할 사진은 마이크로미터 사진과 <b>같은 태블릿, 같은 방법</b>으로 찍어야 해요. 사진을 자르거나 메신저로 보내면 안 돼요.</span></div>
+        <div>
+          <div class="lhead">진행 상황</div>
+          <div class="list" id="hList"></div>
         </div>
-        <div class="sheet-foot">
-          <button id="calNext" class="btn primary lg">다음: 사진 넣기<svg class="ic"><use href="#i-arrow"/></svg></button>
-        </div>
-      </aside>
-    </div>
-  </section>
-
-  <!-- 2단계: 사진 넣기 -->
-  <section id="step2" class="step scroll">
-    <div class="center">
-      <div class="card">
-        <div><h2>측정할 사진 넣기</h2><p class="lead">현미경으로 찍은 사진을 넣고, 몇 배율인지와 무엇을 재는지 골라요.</p></div>
-        <div id="reloadHint" class="note warn" hidden><svg class="ic sm"><use href="#i-alert"/></svg><span>앱이 새로 열려서 사진이 사라졌어요. 사진을 다시 넣어 주세요. 보정값과 측정 결과는 그대로 남아 있어요.</span></div>
-        <div class="group">
-          <div class="label">① 사진</div>
-          <div class="phototile" id="p2Tile">
-            <div class="empty-in" id="p2Empty"><svg class="ic xl" style="color:#94A3B8"><use href="#i-image"/></svg></div>
-            <img id="p2Img" alt="넣은 사진" hidden>
-            <span class="size num" id="p2Size" hidden></span>
-          </div>
-          <div class="row2">
-            <button class="btn primary" data-pick="cam" data-for="photo"><svg class="ic"><use href="#i-camera"/></svg>사진 찍기</button>
-            <button class="btn" data-pick="gal" data-for="photo"><svg class="ic"><use href="#i-image"/></svg>갤러리에서 고르기</button>
-          </div>
-        </div>
-        <div class="group">
-          <div class="label">② 몇 배율로 찍었나요?</div>
-          <div id="p2Mags" class="seg"></div>
-        </div>
-        <div class="group">
-          <div class="label">③ 무엇을 재나요?</div>
-          <input id="p2Target" type="text" placeholder="예: 양파 표피세포" maxlength="20" autocomplete="off">
-          <div class="chips" id="p2Chips"></div>
-        </div>
-        <div id="p2Warn" class="note warn" hidden></div>
-        <button id="p2Start" class="btn primary lg">측정 시작<svg class="ic"><use href="#i-arrow"/></svg></button>
       </div>
     </div>
-  </section>
-
-  <!-- 3단계: 측정 -->
-  <section id="step3" class="step">
-    <div class="stage" id="stage3">
-      <div class="viewer" id="measViewer">
-        <canvas class="main"></canvas>
-        <canvas class="loupe"></canvas>
-        <div class="empty"><div class="empty-in"><p>측정할 사진을 넣어 주세요</p></div></div>
-      </div>
-      <div class="rail" id="mRail">
-        <button data-mode="two"><svg class="ic"><use href="#i-two"/></svg>두 점</button>
-        <button data-mode="four"><svg class="ic"><use href="#i-four"/></svg>네 점</button>
-        <button data-mode="object"><svg class="ic"><use href="#i-object"/></svg>자동</button>
-        <div class="sep"></div>
-        <button data-zoom="in"><svg class="ic"><use href="#i-zin"/></svg>확대</button>
-        <button data-zoom="out"><svg class="ic"><use href="#i-zout"/></svg>축소</button>
-        <button data-zoom="fit"><svg class="ic"><use href="#i-fit"/></svg>전체</button>
-      </div>
-      <div class="fchip" id="mChip"></div>
-      <button class="sheet-open" data-sheet-toggle><svg class="ic" style="transform:rotate(180deg)"><use href="#i-panel"/></svg>측정 패널</button>
-      <aside class="sheet">
-        <div class="sheet-head">
-          <div class="grab" data-sheet-toggle></div>
-          <div class="ttl"><h2 id="mInfoT"></h2><div class="sub num" id="mInfoS"></div></div>
-          <button class="btn sm tonal" id="mChange">사진 바꾸기</button>
-          <button class="iconbtn" data-sheet-toggle aria-label="패널 접기"><svg class="ic collapse-ic"><use href="#i-panel"/></svg></button>
-        </div>
-        <div class="tabs" id="mTabs">
-          <button data-tab="measure" class="on"><svg class="ic sm"><use href="#i-ruler"/></svg>측정</button>
-          <button data-tab="results"><svg class="ic sm"><use href="#i-list"/></svg>결과 <span class="cnt num" id="resCnt">0</span></button>
-        </div>
-        <div class="sheet-body">
-          <div class="tabpane" id="paneMeasure">
-            <div class="instr" id="mInstr"></div>
-            <div class="group" id="sensRow" hidden>
-              <div class="label">민감도 <span class="num" id="sensVal"></span></div>
-              <input id="sens" type="range" min="1" max="100" value="50">
-              <div class="muted" style="font-size:13px">테두리가 개체보다 너무 크면 낮추고, 너무 작으면 높여요.</div>
-            </div>
-            <div class="row2">
-              <div class="tile"><span class="k" style="color:var(--len-ink)">● 길이</span><span class="v num" id="roLen">—</span></div>
-              <div class="tile" id="roWidTile"><span class="k" style="color:var(--wid-ink)">● 폭</span><span class="v num" id="roWid">—</span></div>
-            </div>
-            <div id="mMini"></div>
-            <button id="mSaveImg" class="btn"><svg class="ic"><use href="#i-download"/></svg>측정선 그린 사진 저장</button>
-          </div>
-          <div class="tabpane" id="paneResults" hidden>
-            <div id="sumWrap" class="group"></div>
-            <div class="label" id="listLbl">전체 기록</div>
-            <div id="resWrap" class="rlist"></div>
-          </div>
-        </div>
-        <div class="sheet-foot" id="footMeasure">
-          <div class="row2">
-            <button id="mReset" class="btn"><svg class="ic"><use href="#i-undo"/></svg>다시 하기</button>
-            <button id="mAdd" class="btn primary"><svg class="ic"><use href="#i-plus"/></svg>결과에 추가</button>
-          </div>
-        </div>
-        <div class="sheet-foot" id="footResults" hidden>
-          <button id="csvBtn" class="btn"><svg class="ic"><use href="#i-download"/></svg>CSV로 저장 (엑셀)</button>
-        </div>
-      </aside>
-    </div>
-  </section>
-</main>
-
-<div id="modal" class="modal" hidden>
-  <div class="modal-box" role="dialog" aria-modal="true">
-    <h3 id="mTitle"></h3>
-    <div id="mBody"></div>
-    <div id="mActions" class="modal-actions"></div>
   </div>
-</div>
+  <div class="bottomcta"><div class="inner">
+    <button class="btn primary xl" id="hCta"></button>
+    <button class="linkbtn" id="hEnd">측정 끝내기 · 모든 값 지우기</button>
+  </div></div>
+</section>
+
+<!-- ============ 보정 ============ -->
+<section class="screen tool" id="s-cal">
+  <div class="viewer" id="calibViewer"><canvas class="main"></canvas><canvas class="loupe"></canvas><div class="empty"><div class="guidebox" id="calGuide"></div></div></div>
+  <div class="tbar">
+    <button class="glassbtn icononly" data-go="home" aria-label="처음 화면"><svg class="ic"><use href="#i-back"/></svg></button>
+    <div class="tt"><b>보정</b><span>대물 마이크로미터로 1mm가 얼마나 크게 보이는지 알려 줘요</span></div>
+    <div class="mpills" id="calMags"></div>
+  </div>
+  <div class="zoom" id="calZoom">
+    <button data-zoom="in" aria-label="확대"><svg class="ic"><use href="#i-plus"/></svg></button>
+    <button data-zoom="out" aria-label="축소"><svg class="ic"><use href="#i-minus"/></svg></button>
+    <button data-zoom="fit" aria-label="전체 보기"><svg class="ic"><use href="#i-fit"/></svg></button>
+  </div>
+  <div class="dock"><div class="card" id="calCard"></div></div>
+</section>
+
+<!-- ============ 사진 넣기 ============ -->
+<section class="screen page" id="s-photo">
+  <div class="lbar"><button class="iconbtn" data-go="home" aria-label="처음 화면"><svg class="ic"><use href="#i-back"/></svg></button><div class="ttl">사진 넣기</div></div>
+  <div class="page-scroll">
+    <div class="wrap">
+      <div class="note warn" id="reloadHint" hidden style="margin-bottom:20px"><svg class="ic sm"><use href="#i-alert"/></svg><span>앱이 새로 열려서 사진이 사라졌어요. 사진만 다시 넣어 주세요. 보정값과 측정 결과는 그대로 있어요.</span></div>
+      <div class="pgrid">
+        <div class="ptile" id="p2Tile">
+          <div class="pempty" id="p2Empty">
+            <svg class="ic" style="width:40px;height:40px;stroke-width:1.6"><use href="#i-image"/></svg>
+            <p>현미경으로 찍은 사진을 넣어 주세요</p>
+            <div class="btnrow even">
+              <button class="btn primary" data-pick="gal" data-for="photo"><svg class="ic"><use href="#i-image"/></svg>갤러리에서 고르기</button>
+              <button class="btn on-dark" data-pick="cam" data-for="photo"><svg class="ic"><use href="#i-camera"/></svg>사진 찍기</button>
+            </div>
+          </div>
+          <img id="p2Img" alt="넣은 사진" hidden>
+          <span class="size num" id="p2Size" hidden></span>
+          <div class="redo" id="p2Redo" hidden>
+            <button class="glassbtn" data-pick="gal" data-for="photo"><svg class="ic sm"><use href="#i-image"/></svg>다른 사진 고르기</button>
+          </div>
+        </div>
+        <div class="pform">
+          <h1 class="ph1">어떤 사진을<br>잴까요?</h1>
+          <div class="field"><div class="flabel">몇 배율로 찍었나요?</div><div id="p2Mags" class="seg"></div></div>
+          <div class="field"><div class="flabel">무엇을 재나요?</div>
+            <input id="p2Target" type="text" placeholder="예: 양파 표피세포" maxlength="20" autocomplete="off">
+            <div class="chips" id="p2Chips"></div>
+          </div>
+          <div id="p2Warn" class="note warn" hidden></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="bottomcta"><div class="inner"><button id="p2Start" class="btn primary xl">측정 시작</button></div></div>
+</section>
+
+<!-- ============ 측정 ============ -->
+<section class="screen tool" id="s-meas">
+  <div class="viewer" id="measViewer"><canvas class="main"></canvas><canvas class="loupe"></canvas><div class="empty"></div></div>
+  <div class="tbar">
+    <button class="glassbtn icononly" data-go="photo" aria-label="사진 넣기로"><svg class="ic"><use href="#i-back"/></svg></button>
+    <button class="tt" data-go="photo" style="text-align:left" aria-label="대상, 배율 바꾸기"><b id="mTitle"></b><span id="mSub" class="num"></span></button>
+    <button class="glassbtn icononly" id="mMoreBtn" aria-label="메뉴" aria-haspopup="menu"><svg class="ic"><use href="#i-more"/></svg></button>
+    <button class="glassbtn" data-pick="gal" data-for="next" style="background:var(--accent);border-color:transparent"><svg class="ic sm"><use href="#i-image"/></svg>다음 사진</button>
+    <button class="glassbtn" data-go="res"><svg class="ic sm"><use href="#i-chart"/></svg>결과 <span class="cnt num" id="resCnt">0</span></button>
+  </div>
+  <div class="menu" id="mMenu" role="menu" hidden>
+    <button role="menuitem" data-pick="cam" data-for="next"><svg class="ic"><use href="#i-camera"/></svg>카메라로 찍기</button>
+    <button role="menuitem" id="mSaveImg"><svg class="ic"><use href="#i-download"/></svg>측정선 그린 사진 저장</button>
+    <button role="menuitem" data-go="photo"><svg class="ic"><use href="#i-edit"/></svg>대상 · 배율 바꾸기</button>
+    <button role="menuitem" data-go="home"><svg class="ic"><use href="#i-home"/></svg>처음 화면</button>
+  </div>
+  <div class="zoom" id="mZoom">
+    <button data-zoom="in" aria-label="확대"><svg class="ic"><use href="#i-plus"/></svg></button>
+    <button data-zoom="out" aria-label="축소"><svg class="ic"><use href="#i-minus"/></svg></button>
+    <button data-zoom="fit" aria-label="전체 보기"><svg class="ic"><use href="#i-fit"/></svg></button>
+  </div>
+  <div class="dock">
+    <div class="tools" id="mTools">
+      <button data-mode="two"><svg class="ic"><use href="#i-two"/></svg>두 점</button>
+      <button data-mode="four"><svg class="ic"><use href="#i-four"/></svg>네 점</button>
+      <button data-mode="object"><svg class="ic"><use href="#i-object"/></svg>자동</button>
+    </div>
+    <div class="card" id="mCard"></div>
+  </div>
+</section>
+
+<!-- ============ 결과 ============ -->
+<section class="screen page gray" id="s-res">
+  <div class="lbar"><button class="iconbtn" id="resBack" aria-label="뒤로"><svg class="ic"><use href="#i-back"/></svg></button><div class="ttl">측정 결과</div></div>
+  <div class="page-scroll">
+    <div class="wrap" style="padding-bottom:150px">
+      <div class="rh" id="rHead"></div>
+      <div class="rgrid" id="rCards"></div>
+      <div class="records" id="rList"></div>
+      <div style="text-align:center;margin-top:20px"><button class="linkbtn" id="rEnd">측정 끝내기 · 모든 값 지우기</button></div>
+    </div>
+  </div>
+  <div class="bottomcta"><div class="inner row">
+    <button class="btn" id="csvBtn"><svg class="ic"><use href="#i-download"/></svg>CSV 저장</button>
+    <button class="btn primary" id="rMore">더 측정하기</button>
+  </div></div>
+</section>
+
+<div id="modal" class="modal" hidden><div class="modal-box" role="dialog" aria-modal="true"><h3 id="mdTitle"></h3><div id="mdBody"></div><div id="mdActions" class="modal-actions"></div></div></div>
 <div id="toast" class="toast" hidden></div>
 <input type="file" id="fileCam" accept="image/*" capture="environment" hidden>
 <input type="file" id="fileGal" accept="image/*" hidden>
@@ -493,7 +439,7 @@ const $ = s => document.querySelector(s);
 const KEY = 'micro-measure-v1';
 const MAGS = [1, 4];
 const COL = { len: '#FFD233', wid: '#3FD8F2', cal: '#FF5CC8' };
-const MODE_NAME = { two: '두 점', four: '네 점', object: '개체(자동)' };
+const MODE_NAME = { two: '두 점', four: '네 점', object: '자동' };
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -501,13 +447,18 @@ const r1 = p => ({ x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10 })
 const icon = (id, cls = '') => `<svg class="ic ${cls}"><use href="#i-${id}"/></svg>`;
 function fmtMm(um) { const mm = um / 1000; return mm >= 0.1 ? mm.toFixed(2) : mm.toFixed(3); }
 function fmtUm(um) { return `${Math.round(um)}μm (${fmtMm(um)}mm)`; }
-const umHtml = um => `${Math.round(um)}<small>μm</small>`;
 function pad2(n) { return String(n).padStart(2, '0'); }
 function ymd(d = new Date()) { return `${d.getFullYear()}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}`; }
 function whenText(t) {
   const d = new Date(t), now = new Date();
   const hm = `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
   return d.toDateString() === now.toDateString() ? `오늘 ${hm}` : `${d.getMonth() + 1}월 ${d.getDate()}일 ${hm}`;
+}
+// 받침에 따라 은/는, 이/가
+function josa(word, a, b) {
+  const c = String(word).trim().slice(-1).charCodeAt(0);
+  if (c < 0xAC00 || c > 0xD7A3) return word + b;
+  return word + ((c - 0xAC00) % 28 ? a : b);
 }
 const isPortrait = () => matchMedia('(max-width:900px),(orientation:portrait)').matches;
 
@@ -519,7 +470,7 @@ function testStorage() { try { localStorage.setItem('__mm_t', '1'); localStorage
 function persist() {
   S.savedAt = Date.now();
   if (!storageOK) return;
-  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { storageOK = false; $('#storageBanner').hidden = false; }
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { storageOK = false; }
 }
 function readStored() {
   if (!storageOK) return null;
@@ -530,9 +481,9 @@ function clearStored() { try { localStorage.removeItem(KEY); } catch (e) {} }
 
 /* ========== 모달, 토스트 ========== */
 function modal(title, bodyHtml, actions) {
-  $('#mTitle').textContent = title;
-  $('#mBody').innerHTML = bodyHtml;
-  const box = $('#mActions'); box.innerHTML = '';
+  $('#mdTitle').textContent = title;
+  $('#mdBody').innerHTML = bodyHtml;
+  const box = $('#mdActions'); box.innerHTML = '';
   actions.forEach(a => {
     const b = document.createElement('button');
     b.className = 'btn ' + (a.cls || ''); b.textContent = a.label;
@@ -542,10 +493,12 @@ function modal(title, bodyHtml, actions) {
   $('#modal').hidden = false;
 }
 function closeModal() { $('#modal').hidden = true; }
+$('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
 let toastTimer = 0;
-function toast(msg, ms = 2600) {
+function toast(msg, ms = 2400, action) {
   const t = $('#toast');
-  t.innerHTML = `${icon('check')}<span>${esc(msg)}</span>`;
+  t.innerHTML = `${icon('check', 'sm')}<span>${esc(msg)}</span>${action ? `<button class="tact">${esc(action.label)}</button>` : ''}`;
+  if (action) t.querySelector('.tact').onclick = () => { t.hidden = true; action.fn(); };
   t.hidden = true; void t.offsetWidth; t.hidden = false;
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, ms);
 }
@@ -716,6 +669,8 @@ class Viewer {
   }
 }
 
+
+
 /* ========== 그리기 도구 (화면과 저장 사진 공통) ========== */
 function gLine(c, a, b, color, u) {
   c.lineCap = 'round';
@@ -724,22 +679,32 @@ function gLine(c, a, b, color, u) {
   c.strokeStyle = color; c.lineWidth = 3 * u;
   c.beginPath(); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); c.stroke();
 }
+const CFONT = '"MicroMeasure Sans","Pretendard Variable",Pretendard,system-ui,sans-serif';
 function gDot(c, p, color, u, num) {
-  c.lineWidth = 5 * u; c.strokeStyle = '#fff';
-  c.beginPath(); c.arc(p.x, p.y, 9 * u, 0, Math.PI * 2); c.stroke();
+  c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 4 * u;
+  c.lineWidth = 4.5 * u; c.strokeStyle = '#fff';
+  c.beginPath(); c.arc(p.x, p.y, 8.5 * u, 0, Math.PI * 2); c.stroke();
+  c.restore();
   c.lineWidth = 2.5 * u; c.strokeStyle = color;
-  c.beginPath(); c.arc(p.x, p.y, 9 * u, 0, Math.PI * 2); c.stroke();
-  c.fillStyle = color; c.beginPath(); c.arc(p.x, p.y, 1.8 * u, 0, Math.PI * 2); c.fill();
-  if (num != null) gLabel(c, String(num), { x: p.x + 16 * u, y: p.y - 16 * u }, '#fff', u, 0.85);
+  c.beginPath(); c.arc(p.x, p.y, 8.5 * u, 0, Math.PI * 2); c.stroke();
+  c.fillStyle = '#fff'; c.beginPath(); c.arc(p.x, p.y, 2.6 * u, 0, Math.PI * 2); c.fill();
+  c.fillStyle = color; c.beginPath(); c.arc(p.x, p.y, 1.6 * u, 0, Math.PI * 2); c.fill();
+  if (num != null) gLabel(c, String(num), { x: p.x + 17 * u, y: p.y - 17 * u }, null, u, 0.8);
 }
+/* 값 표시: 흰 알약 위에 진한 글씨, 왼쪽에 선 색 점 (color가 없으면 점 없음) */
 function gLabel(c, text, p, color, u, sizeK = 1) {
-  const fs = 16 * u * sizeK;
-  c.font = `800 ${fs}px system-ui, "Noto Sans KR", sans-serif`;
-  c.textBaseline = 'middle'; c.textAlign = 'center';
-  const w = c.measureText(text).width + fs * 0.9, h = fs * 1.55;
-  c.fillStyle = 'rgba(0,0,0,.75)';
-  roundRect(c, p.x - w / 2, p.y - h / 2, w, h, h / 2); c.fill();
-  c.fillStyle = color; c.fillText(text, p.x, p.y + fs * 0.04);
+  const fs = 15 * u * sizeK, dot = color && color !== '#fff';
+  c.font = `700 ${fs}px ${CFONT}`;
+  c.textBaseline = 'middle'; c.textAlign = 'left';
+  const padX = fs * 0.62, dotW = dot ? fs * 0.8 : 0, h = fs * 1.75;
+  const w = c.measureText(text).width + padX * 2 + dotW, x = p.x - w / 2, y = p.y - h / 2;
+  c.save(); c.shadowColor = 'rgba(0,0,0,.30)'; c.shadowBlur = 8 * u; c.shadowOffsetY = 2 * u;
+  c.fillStyle = 'rgba(255,255,255,.97)'; roundRect(c, x, y, w, h, h / 2); c.fill(); c.restore();
+  if (dot) {
+    c.fillStyle = color; c.beginPath(); c.arc(x + padX + fs * 0.27, p.y, fs * 0.3, 0, Math.PI * 2); c.fill();
+    c.lineWidth = 1 * u; c.strokeStyle = 'rgba(0,0,0,.28)'; c.stroke();
+  }
+  c.fillStyle = '#191F28'; c.fillText(text, x + padX + dotW, p.y + fs * 0.05);
 }
 function roundRect(c, x, y, w, h, r) {
   c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
@@ -800,6 +765,8 @@ function drawItem(c, it, map, u, prefix = '', compact = false) {
 
 
 
+
+
 /* 점 찍을 때 톡 튀는 효과 */
 const pop = { at: 0, key: '' };
 function popK(key) {
@@ -809,69 +776,44 @@ function popK(key) {
 }
 const popping = () => performance.now() - pop.at < 280;
 
-/* ========== 작업 화면 패널 (접기, 여백 계산) ========== */
-function stageInsets(stage) {
+/* 숫자가 올라가며 바뀌는 효과 */
+function countUp(el, to, ms = 420) {
+  if (!el) return;
+  const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const from = reduce ? to : Math.max(0, to * 0.55), t0 = performance.now();
+  const step = now => {
+    const t = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - t, 3);
+    el.firstChild.nodeValue = Math.round(from + (to - from) * e);
+    if (t < 1) requestAnimationFrame(step);
+  };
+  el.firstChild.nodeValue = Math.round(from);
+  requestAnimationFrame(step);
+}
+
+/* ========== 도구 화면 여백 (사진이 카드에 가리지 않게) ========== */
+function toolInsets(screen) {
   return () => {
-    const sr = stage.getBoundingClientRect();
-    const rail = stage.querySelector('.rail').getBoundingClientRect();
-    const chip = stage.querySelector('.fchip');
-    const sheet = stage.querySelector('.sheet').getBoundingClientRect();
-    const collapsed = stage.classList.contains('collapsed');
-    const ins = { l: 14, r: 14, t: 14, b: 14 };
-    if (isPortrait()) {
-      ins.t = rail.bottom - sr.top + 10;
-      if (chip && !chip.hidden) ins.t = Math.max(ins.t, chip.getBoundingClientRect().bottom - sr.top + 10);
-      ins.b = collapsed ? 90 : sr.bottom - sheet.top + 10;
-    } else {
-      ins.l = rail.right - sr.left + 12;
-      ins.t = 72;
-      ins.r = collapsed ? 14 : sr.right - sheet.left + 12;
-    }
+    const sr = screen.getBoundingClientRect();
+    const tb = screen.querySelector('.tbar').getBoundingClientRect();
+    const dock = screen.querySelector('.dock').getBoundingClientRect();
+    const zoom = screen.querySelector('.zoom').getBoundingClientRect();
+    const ins = { l: 16, r: 16, t: Math.max(70, tb.bottom - sr.top - 14), b: 16 };
+    if (isPortrait()) ins.b = sr.bottom - dock.top + 12;
+    else { ins.r = sr.right - dock.left + 16; ins.l = zoom.right - sr.left + 12; }
     return ins;
   };
 }
-function wireStage(stage, viewer) {
-  stage.querySelectorAll('[data-sheet-toggle]').forEach(b => b.addEventListener('click', () => {
-    stage.classList.toggle('collapsed');
-    setTimeout(() => viewer.fit(), 320);
-  }));
-  stage.querySelectorAll('.rail [data-zoom]').forEach(b => b.addEventListener('click', () => viewer.zoomBtn(b.dataset.zoom)));
+function wireTool(screen, viewer) {
+  screen.querySelectorAll('.zoom [data-zoom]').forEach(b => b.addEventListener('click', () => viewer.zoomBtn(b.dataset.zoom)));
+  // 카드가 커져서 사진을 가릴 때만 다시 맞춤 (측정 중에 사진이 움직이지 않게)
+  new ResizeObserver(() => {
+    const v = viewer; if (!v.img || Math.abs(v.scale - v.fitScale) > 1e-9) return;
+    const ins = v.insets(), bottom = v.ty + v.img.naturalHeight * v.scale, right = v.tx + v.img.naturalWidth * v.scale;
+    if (bottom > v.ch - ins.b + 1 || right > v.cw - ins.r + 1) v.fit();
+  }).observe(screen.querySelector('.dock'));
 }
 
-/* ========== 그림 (처음 화면, 보정 안내) ========== */
-function cellShape(cx, cy, rot, fill = '#8FB07A') {
-  return `<g transform="translate(${cx} ${cy}) rotate(${rot})"><ellipse rx="34" ry="12" fill="${fill}" stroke="#5E7F4E" stroke-width="2"/><circle cx="-8" cy="0" r="4" fill="#6B8F58"/><circle cx="12" cy="-2" r="2.5" fill="#B9D3A6"/><circle cx="2" cy="4" r="2" fill="#B9D3A6"/></g>`;
-}
-function micrometerSvg(w, h, state) {
-  // state: 0 시작점 기다림, 1 끝점 기다림, 2 완료, -1 사진 없음
-  const cx = w / 2, cy = h / 2, R = h * 0.42, x0 = cx - w * 0.3, x1 = cx + w * 0.3, n = 20, y = cy + 6;
-  let ticks = '';
-  for (let i = 0; i <= n; i++) { const x = x0 + (x1 - x0) * i / n, L = i % 10 === 0 ? 18 : i % 5 === 0 ? 12 : 8; ticks += `<line x1="${x}" y1="${y}" x2="${x}" y2="${y - L}" stroke="#334155" stroke-width="1.6"/>`; }
-  const mark = (x, lbl, active, done) => `<g><circle cx="${x}" cy="${y}" r="9" fill="none" stroke="${active || done ? '#FF5CC8' : '#94A3B8'}" stroke-width="${active ? 3.5 : 2.5}" ${active ? 'class="blink"' : ''}/>${done ? `<circle cx="${x}" cy="${y}" r="2.5" fill="#FF5CC8"/>` : ''}<rect x="${x - 22}" y="${y + 14}" width="44" height="20" rx="10" fill="${active || done ? '#FF5CC8' : '#475569'}"/><text x="${x}" y="${y + 28}" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">${lbl}</text></g>`;
-  return `<style>.blink{animation:blink 1s ease-in-out infinite}@keyframes blink{50%{opacity:.25}}</style>
-    <rect width="${w}" height="${h}" fill="#0B1220"/><circle cx="${cx}" cy="${cy}" r="${R * 1.6}" fill="#CFD8CB"/>
-    <line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="#334155" stroke-width="2"/>${ticks}
-    ${state === 2 ? `<line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="#FF5CC8" stroke-width="3"/>` : ''}
-    ${mark(x0, '0', state === 0, state >= 1)}${mark(x1, '100', state === 1, state === 2)}`;
-}
-function howSvgs() {
-  const W = 320, H = 190;
-  const s1 = `<svg class="illus" viewBox="0 0 ${W} ${H}">${micrometerSvg(W, H, 2)}</svg>`;
-  const s2 = `<svg class="illus" viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="#0B1220"/><circle cx="160" cy="95" r="78" fill="#CFD8CB"/>${cellShape(150, 88, -20)}${cellShape(185, 120, 15, '#9CBB88')}
-    <g transform="translate(236 132)"><rect width="56" height="40" rx="12" fill="#0E8F86"/><path d="M33 13h-10l-3 4h-5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h26a2 2 0 0 0 2-2V19a2 2 0 0 0-2-2h-5z" fill="none" stroke="#fff" stroke-width="2" transform="translate(0 -2)"/><circle cx="28" cy="24" r="4" fill="none" stroke="#fff" stroke-width="2"/></g></svg>`;
-  const s3 = `<svg class="illus" viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="#0B1220"/><circle cx="160" cy="95" r="78" fill="#CFD8CB"/>${cellShape(160, 98, -20)}
-    <line x1="128" y1="110" x2="192" y2="86" stroke="#fff" stroke-width="6" stroke-linecap="round"/><line x1="128" y1="110" x2="192" y2="86" stroke="#FFD233" stroke-width="3" stroke-linecap="round"/>
-    <circle cx="128" cy="110" r="7" fill="none" stroke="#FFD233" stroke-width="2.5"/><circle cx="192" cy="86" r="7" fill="none" stroke="#FFD233" stroke-width="2.5"/>
-    <rect x="166" y="46" width="78" height="26" rx="13" fill="rgba(0,0,0,.75)"/><text x="205" y="64" text-anchor="middle" font-size="15" font-weight="800" fill="#FFD233">200μm</text></svg>`;
-  const items = [
-    [s1, '보정', '대물 마이크로미터 사진에서 눈금 0과 100을 터치해 1mm의 크기를 알려 줘요.'],
-    [s2, '사진 넣기', '현미경으로 찍은 사진을 넣고 배율과 관찰 대상을 골라요.'],
-    [s3, '측정', '양 끝을 터치하면 실제 길이가 나와요. 여러 개를 재면 평균과 그래프도 볼 수 있어요.']
-  ];
-  return items.map(([svg, t, d], i) => `<article class="how">${svg}<div class="txt"><h3><span class="n">${i + 1}</span>${t}</h3><p>${d}</p></div></article>`).join('');
-}
-
-/* ========== 사진 넣기 ========== */
+/* ========== 사진 넣기 공통 ========== */
 let pickFor = null;
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-pick]'); if (!b) return;
@@ -883,7 +825,9 @@ document.addEventListener('click', e => {
   if (!f) return;
   try {
     const { img, url } = await loadImage(f);
-    if (pickFor === 'calib') setCalibImage(img, url); else setPendingPhoto(img, url);
+    if (pickFor === 'calib') setCalibImage(img, url);
+    else if (pickFor === 'next') setNextPhoto(img, url);
+    else setPendingPhoto(img, url);
   } catch (err) { toast('사진을 열 수 없어요. 다른 사진으로 해 보세요.'); }
 }));
 function loadImage(file) {
@@ -894,176 +838,170 @@ function loadImage(file) {
     im.src = url;
   });
 }
+document.addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (b) show(b.dataset.go); });
 
-/* ========== 1단계: 보정 ========== */
-const cal = { mag: 1, byMag: { 1: { img: null, url: null, pts: [] }, 4: { img: null, url: null, pts: [] } } };
+/* 보정 안내 그림: 마이크로미터 눈금과 0, 100 위치 */
+function micrometerSvg() {
+  const W = 420, H = 240, cx = W / 2, cy = H / 2, x0 = cx - 130, x1 = cx + 130, y = cy + 8;
+  let t = '';
+  for (let i = 0; i <= 20; i++) { const x = x0 + (x1 - x0) * i / 20, L = i % 10 === 0 ? 26 : i % 5 === 0 ? 18 : 11; t += `<line x1="${x}" y1="${y}" x2="${x}" y2="${y - L}" stroke="#3B4656" stroke-width="2"/>`; }
+  const mk = (x, l) => `<circle cx="${x}" cy="${y}" r="11" fill="none" stroke="#FF5CC8" stroke-width="3.5"/><rect x="${x - 24}" y="${y + 20}" width="48" height="24" rx="12" fill="#FF5CC8"/><text x="${x}" y="${y + 37}" text-anchor="middle" font-size="14" font-weight="800" fill="#fff" font-family="inherit">${l}</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="#141B28"/><circle cx="${cx}" cy="${cy}" r="170" fill="#CFD8CB"/><line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="#3B4656" stroke-width="2.5"/>${t}${mk(x0, '0')}${mk(x1, '100')}</svg>`;
+}
+$('#calGuide').innerHTML = micrometerSvg() + '<span>이렇게 눈금이 다 보이는 사진을 넣고<br>눈금 0과 100을 터치해요</span>';
+
+/* ========== 보정 ========== */
+const cal = { mag: 1, ticks: 100, editTicks: false, justSaved: null, byMag: { 1: { img: null, url: null, pts: [] }, 4: { img: null, url: null, pts: [] } } };
 const calS = () => cal.byMag[cal.mag];
 const calV = new Viewer($('#calibViewer'), {
-  getInsets: stageInsets($('#stage1')),
+  getInsets: toolInsets($('#s-cal')),
   needsAnim: popping,
   onTap: p => {
     const s = calS();
-    if (s.pts.length < 2) { s.pts.push(p); pop.at = performance.now(); pop.key = 'c' + (s.pts.length - 1); renderCalib(); }
-    else toast('점을 끌어서 고치거나 [다시 하기]를 누르세요');
+    if (s.pts.length < 2) { s.pts.push(p); pop.at = performance.now(); pop.key = 'c' + (s.pts.length - 1); renderCal(); }
+    else toast('점을 끌어서 고치거나 [다시]를 누르세요');
   },
   getHandles: () => calS().pts.map((p, i) => ({ ...p, id: i })),
-  onDrag: (id, p) => { calS().pts[id] = p; renderCalibNow(); },
+  onDrag: (id, p) => { calS().pts[id] = p; updateCalNum(); },
   drawOverlay: (c, v) => {
     const pts = calS().pts.map(p => v.toS(p));
     if (pts.length === 2) {
       gLine(c, pts[0], pts[1], COL.cal, 1);
-      gLabel(c, `${Math.round(dist(calS().pts[0], calS().pts[1]))}픽셀`, labelPos(pts[0], pts[1], 1), COL.cal, 1);
+      gLabel(c, `${cal.ticks}칸 = ${tickLen(cal.ticks).replace(/<[^>]+>/g, '')}`, labelPos(pts[0], pts[1], 1), COL.cal, 1);
     }
-    pts.forEach((p, i) => gDot(c, p, COL.cal, popK('c' + i), i === 0 ? '0' : '끝'));
+    pts.forEach((p, i) => gDot(c, p, COL.cal, popK('c' + i), i === 0 ? '0' : String(cal.ticks > 0 ? cal.ticks : 100)));
   }
 });
-wireStage($('#stage1'), calV);
+wireTool($('#s-cal'), calV);
 function setCalibImage(img, url) {
   const s = calS();
   if (s.url) URL.revokeObjectURL(s.url);
-  s.img = img; s.url = url; s.pts = [];
-  calV.setImage(img); renderCalib();
+  s.img = img; s.url = url; s.pts = []; cal.justSaved = null;
+  calV.setImage(img); renderCal();
 }
-function renderCalib() {
-  const s = calS();
-  $('#calMags').innerHTML = MAGS.map(m => {
-    const ok = !!S.calib[m];
-    return `<button data-m="${m}" class="${m === cal.mag ? 'on' : ''}">${m}배율<span class="tag ${ok ? 'ok' : ''}">${ok ? '✓ 보정 완료' : '보정 전'}</span></button>`;
-  }).join('');
-  $('#calEmptyT').textContent = `${cal.mag}배율로 찍은 대물 마이크로미터 사진을 넣어 주세요`;
+const calPpm = () => { const s = calS(); return s.pts.length === 2 && cal.ticks > 0 ? dist(s.pts[0], s.pts[1]) / (cal.ticks * 0.01) : null; };
+function renderCal() {
+  const s = calS(), c = S.calib[cal.mag];
+  $('#calMags').innerHTML = MAGS.map(m => `<button data-m="${m}" class="${m === cal.mag ? 'on' : ''}">${S.calib[m] ? `<span class="ok">${icon('check')}</span>` : ''}${m}배율</button>`).join('');
   if (calV.img !== s.img) calV.setImage(s.img);
-  let ins, sub = '', state = -1;
-  if (!s.img) { ins = `${cal.mag}배율 마이크로미터 사진을 넣어 주세요`; sub = S.calib[cal.mag] ? '이미 보정했어요. 다시 하려면 사진을 넣으세요.' : '왼쪽 화면의 [사진 찍기]나 [갤러리에서 고르기]를 누르세요.'; }
-  else if (s.pts.length === 0) { state = 0; ins = '눈금 시작점(0)을 터치하세요'; sub = '손가락을 대고 움직이면 돋보기가 나와요. 손을 떼면 점이 찍혀요. 두 손가락으로 확대할 수 있어요.'; }
-  else if (s.pts.length === 1) { state = 1; ins = '끝 눈금(100)을 터치하세요'; sub = '눈금 선의 같은 쪽 가장자리에 맞추면 더 정확해요.'; }
-  else { state = 2; ins = '점이 맞으면 [보정 저장]을 누르세요'; sub = '점을 끌어서 고칠 수 있어요.'; }
-  $('#calGuide').innerHTML = micrometerSvg(320, 120, state < 0 ? 2 : state);
-  $('#calInstr').innerHTML = `${esc(ins)}<span class="sub">${esc(sub)}</span>`;
-  $('#calPhotoBtns').hidden = !s.img;
-  renderCalibNow();
-  $('#calSaved').innerHTML = MAGS.map(m => {
-    const c = S.calib[m];
-    if (!c) return `<div class="savedcal"><span class="badge">${m}×</span><div class="t"><b>${m}배율</b><br><span>아직 보정하지 않았어요</span></div></div>`;
-    return `<div class="savedcal ok"><span class="badge">${m}×</span><div class="t"><b class="num">1mm = ${Math.round(c.pxPerMm)}픽셀</b><br><span class="num">1픽셀 = ${(1000 / c.pxPerMm).toFixed(2)}μm · 사진 ${c.w}×${c.h}</span></div><button class="iconbtn" data-delcal="${m}" aria-label="${m}배율 보정 지우기">${icon('trash', 'sm')}</button></div>`;
-  }).join('');
-  const a = S.calib[1], b = S.calib[4];
-  $('#calRatio').innerHTML = a && b ? `<div class="note ok">${icon('check', 'sm')}<span>4배율은 1배율보다 <b class="num">${(b.pxPerMm / a.pxPerMm).toFixed(2)}배</b> 크게 보여요.</span></div>` : '';
-  $('#calNext').disabled = !Object.keys(S.calib).length;
-  updateProgress();
+  const other = MAGS.find(m => m !== cal.mag && !S.calib[m]);
+  const both = S.calib[1] && S.calib[4], ratioV = both ? (S.calib[4].pxPerMm / S.calib[1].pxPerMm).toFixed(2) : null;
+  const dots = n => `<div class="dots">${[0, 1].map(i => `<i class="${i < n ? 'on' : i === n ? 'cur' : ''}"></i>`).join('')}</div>`;
+  let h;
+  if (cal.justSaved === cal.mag && c) {
+    h = `<div class="top"><span class="okbadge">${icon('check')}</span><div><div class="title">${cal.mag}배율 보정 완료</div><p class="cap">이제 ${cal.mag}배율 사진에서 실제 길이를 잴 수 있어요.</p></div></div>
+      ${both ? `<div class="val"><span class="k">4배율은 1배율보다</span><span class="big num">${ratioV}<small>배 크게 보여요</small></span><span class="mm">태블릿 화면의 4배 확대가 실제로 몇 배인지 알 수 있어요.</span></div>` : ''}
+      ${other ? `<div class="btnrow"><button class="btn" data-go="photo">나중에</button><button class="btn primary" data-act="mag" data-m="${other}">${other}배율 보정하기</button></div>`
+              : `<button class="btn primary xl" data-go="photo">사진 넣으러 가기</button>`}`;
+  } else if (!s.img) {
+    h = c
+      ? `<div class="top"><span class="okbadge">${icon('check')}</span><div><div class="title">${cal.mag}배율은 보정했어요</div><p class="cap">다시 하려면 마이크로미터 사진을 다시 넣어요.</p></div></div>
+         <button class="btn" data-pick="gal" data-for="calib">${icon('image')}다른 사진으로 다시 보정</button>
+         <button class="btn primary xl" data-go="photo">사진 넣으러 가기</button>`
+      : `<div><div class="title">${cal.mag}배율로 찍은<br>대물 마이크로미터 사진을 넣어요</div><p class="cap">눈금 100칸(1mm)이 화면 안에 다 보이게 찍어 주세요. 측정할 사진과 <b>같은 태블릿, 같은 방법</b>으로 찍은 사진이어야 해요.</p></div>
+         <div class="btnrow" style="grid-template-columns:1.4fr 1fr"><button class="btn primary" data-pick="gal" data-for="calib">${icon('image')}갤러리에서 고르기</button><button class="btn" data-pick="cam" data-for="calib">${icon('camera')}사진 찍기</button></div>`;
+  } else if (s.pts.length < 2) {
+    h = `<div>${dots(s.pts.length)}<div class="title">${s.pts.length === 0 ? '눈금 <b style="color:var(--cal)">0</b>을 터치하세요' : '눈금 <b style="color:var(--cal)">100</b>을 터치하세요'}</div>
+      <p class="cap">${s.pts.length === 0 ? '손가락을 대고 움직이면 돋보기가 나와요. 손을 떼면 점이 찍혀요. 두 손가락으로 확대할 수 있어요.' : '눈금 선의 같은 쪽 가장자리에 맞추면 더 정확해요.'}</p></div>
+      ${s.pts.length ? `<button class="btn" data-act="reset">${icon('undo')}처음부터</button>` : ''}`;
+  } else {
+    h = `<div>${dots(2)}<div class="val"><span class="k">두 점 사이는</span><span class="big num" id="calBig">${tickLen(cal.ticks)}</span></div>
+      <p class="cap" id="calCap"></p></div>
+      ${cal.editTicks ? `<div class="ticksedit"><input id="calTicks" type="number" inputmode="decimal" min="1" value="${cal.ticks}" aria-label="두 점 사이 눈금 수"><span class="cap" style="margin:0">칸 (1칸 = 10μm)</span></div>` : ''}
+      <div class="btnrow"><button class="btn" data-act="reset">${icon('undo')}다시</button><button class="btn primary" data-act="save">${icon('check')}보정 완료</button></div>`;
+  }
+  $('#calCard').innerHTML = h;
+  updateCalNum();
+  if (cal.editTicks && $('#calTicks')) $('#calTicks').oninput = e => { cal.ticks = parseFloat(e.target.value); updateCalNum(); calV.draw(); };
+  calV.draw();
 }
-function renderCalibNow() {
-  const s = calS();
-  const ticks = parseFloat($('#ticks').value);
-  $('#ticksInfo').textContent = ticks > 0 ? `칸 = ${fmtMm(ticks * 10)}mm · 1칸 10μm` : '눈금 수를 써 주세요';
-  let ppm = null;
-  if (s.pts.length === 2 && ticks > 0) ppm = dist(s.pts[0], s.pts[1]) / (ticks * 0.01);
-  $('#calNowV').innerHTML = ppm ? `${Math.round(ppm)}<small>픽셀</small>` : '—';
-  $('#calNowP').innerHTML = ppm ? `${(1000 / ppm).toFixed(2)}<small>μm</small>` : '—';
-  const chip = $('#calChip');
-  chip.hidden = !ppm;
-  if (ppm) chip.innerHTML = `<span class="pill"><i style="background:${COL.cal}">1mm</i><b class="num">${Math.round(ppm)}</b><small>픽셀</small></span>`;
-  $('#calSave').disabled = s.pts.length < 2;
-  $('#calReset').disabled = !s.pts.length;
+/* 눈금 칸 수 → 길이 글자 (100칸 → 1mm, 50칸 → 500μm) */
+function tickLen(t) {
+  if (!(t > 0)) return '—';
+  const um = t * 10;
+  return um >= 1000 ? `${+(um / 1000).toFixed(2)}<small>mm</small>` : `${Math.round(um)}<small>μm</small>`;
 }
-$('#ticks').addEventListener('input', renderCalibNow);
-$('#calMags').addEventListener('click', e => {
-  const b = e.target.closest('[data-m]'); if (!b) return;
-  cal.mag = +b.dataset.m; renderCalib();
+function updateCalNum() {
+  const big = $('#calBig'), cap = $('#calCap');
+  if (big && calS().pts.length === 2 && !cal.justSaved) big.innerHTML = tickLen(cal.ticks);
+  if (cap) cap.innerHTML = `눈금 <b class="num">${cal.ticks > 0 ? cal.ticks : '—'}칸</b> · 1칸은 10μm <button class="linkbtn" style="padding:4px 6px;color:var(--accent-text)" data-act="ticks">칸 수 바꾸기</button>`;
+}
+$('#calMags').addEventListener('click', e => { const b = e.target.closest('[data-m]'); if (b) { cal.mag = +b.dataset.m; cal.justSaved = null; renderCal(); } });
+$('#calCard').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const a = b.dataset.act, s = calS();
+  if (a === 'reset') { s.pts = []; renderCal(); }
+  if (a === 'ticks') { cal.editTicks = !cal.editTicks; renderCal(); }
+  if (a === 'mag') { cal.mag = +b.dataset.m; cal.justSaved = null; renderCal(); }
+  if (a === 'save') {
+    if (!(cal.ticks > 0)) { toast('눈금 수를 바르게 써 주세요'); return; }
+    const d = dist(s.pts[0], s.pts[1]);
+    if (d < 10) { toast('두 점이 너무 가까워요. 다시 찍어 주세요.'); return; }
+    const ppm = d / (cal.ticks * 0.01);
+    S.calib[cal.mag] = { pxPerMm: ppm, ticks: cal.ticks, distPx: d, w: s.img.naturalWidth, h: s.img.naturalHeight, at: Date.now() };
+    persist();
+    cal.justSaved = cal.mag; cal.editTicks = false;
+    renderCal();
+  }
 });
-$('#calReset').onclick = () => { calS().pts = []; renderCalib(); calV.draw(); };
-$('#calSave').onclick = () => {
-  const s = calS();
-  if (s.pts.length < 2) return;
-  const ticks = parseFloat($('#ticks').value);
-  if (!(ticks > 0)) { toast('눈금 수를 바르게 써 주세요'); return; }
-  const d = dist(s.pts[0], s.pts[1]);
-  if (d < 10) { toast('두 점이 너무 가까워요. 다시 찍어 주세요.'); return; }
-  const ppm = d / (ticks * 0.01);
-  S.calib[cal.mag] = { pxPerMm: ppm, ticks, distPx: d, w: s.img.naturalWidth, h: s.img.naturalHeight, at: Date.now() };
-  persist();
-  toast(`${cal.mag}배율 보정 완료! 1mm = ${Math.round(ppm)}픽셀`);
-  const other = MAGS.find(m => !S.calib[m]);
-  if (other) cal.mag = other;
-  renderCalib();
-};
-$('#calSaved').addEventListener('click', e => {
-  const b = e.target.closest('[data-delcal]'); if (!b) return;
-  const m = +b.dataset.delcal;
-  modal(`${m}배율 보정을 지울까요?`, '<p>지우면 이 배율 사진은 다시 보정해야 잴 수 있어요.</p>', [
-    { label: '지우기', cls: 'danger', fn: () => { delete S.calib[m]; persist(); renderCalib(); } },
-    { label: '취소' }
-  ]);
-});
-$('#calNext').onclick = () => go(2);
 
-/* ========== 2단계: 사진 넣기 ========== */
+/* ========== 사진 넣기 ========== */
 const P = { img: null, url: null, mag: null };
 const CHIPS = ['양파 표피세포', '짚신벌레', '입안 상피세포', '꽃가루'];
 function setPendingPhoto(img, url) {
   P.img = img; P.url = url;
   if (!P.mag || !S.calib[P.mag]) P.mag = S.lastMag && S.calib[S.lastMag] ? S.lastMag : (MAGS.filter(m => S.calib[m]).length === 1 ? MAGS.find(m => S.calib[m]) : null);
-  renderStep2();
+  renderPhoto();
 }
 function sizeWarning(img, mag) {
   const c = S.calib[mag] || S.calib[MAGS.find(m => S.calib[m])]; if (!img || !c) return '';
   const w = img.naturalWidth, h = img.naturalHeight;
   if ((w === c.w && h === c.h) || (w === c.h && h === c.w)) return '';
-  return `보정 사진과 크기가 달라요 (보정 ${c.w}×${c.h}, 지금 ${w}×${h}). 같은 태블릿으로 찍었는지, 사진을 자르거나 메신저로 보내지 않았는지 확인해 주세요.`;
+  return `마이크로미터 사진과 사진 크기가 달라요. 같은 태블릿으로 찍었는지, 사진을 자르거나 메신저로 보내지 않았는지 확인해 주세요.`;
 }
-function renderStep2() {
+function renderPhoto() {
   $('#reloadHint').hidden = !(S.results.length && !P.img && !M.img);
-  $('#p2Img').hidden = !P.img; $('#p2Size').hidden = !P.img; $('#p2Empty').hidden = !!P.img;
+  $('#p2Img').hidden = !P.img; $('#p2Size').hidden = true; $('#p2Redo').hidden = !P.img; $('#p2Empty').hidden = !!P.img;
   if (P.img) { $('#p2Img').src = P.url; $('#p2Size').textContent = `${P.img.naturalWidth}×${P.img.naturalHeight}`; }
   $('#p2Mags').innerHTML = MAGS.map(m => {
     const ok = !!S.calib[m];
-    return `<button data-m="${m}" class="${P.mag === m ? 'on' : ''}" ${ok ? '' : 'disabled'}>${m}배율<span class="tag">${ok ? '보정 완료' : '보정 안 함'}</span></button>`;
+    return `<button data-m="${m}" class="${P.mag === m ? 'on' : ''}" ${ok ? '' : 'disabled'}>${m}배율<small>${ok ? '보정 완료' : '보정 안 함'}</small></button>`;
   }).join('');
   if (document.activeElement !== $('#p2Target')) $('#p2Target').value = S.target || '';
   const used = [...new Set(S.results.map(r => r.target))];
-  const chips = [...new Set([...used, ...CHIPS])].slice(0, 6);
-  $('#p2Chips').innerHTML = chips.map(c => `<button class="${c === S.target ? 'on' : ''}">${esc(c)}</button>`).join('');
+  $('#p2Chips').innerHTML = [...new Set([...used, ...CHIPS])].slice(0, 6).map(c => `<button class="chip ${c === S.target ? 'on' : ''}">${esc(c)}</button>`).join('');
   const w = sizeWarning(P.img, P.mag);
   $('#p2Warn').hidden = !w; $('#p2Warn').innerHTML = w ? `${icon('alert', 'sm')}<span>${esc(w)}</span>` : '';
   $('#p2Start').disabled = !(P.img && P.mag);
-  updateProgress();
 }
-$('#p2Mags').addEventListener('click', e => {
-  const b = e.target.closest('[data-m]'); if (!b || b.disabled) return;
-  P.mag = +b.dataset.m; renderStep2();
-});
+$('#p2Mags').addEventListener('click', e => { const b = e.target.closest('[data-m]'); if (!b || b.disabled) return; P.mag = +b.dataset.m; renderPhoto(); });
 $('#p2Chips').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
-  $('#p2Target').value = b.textContent; S.target = b.textContent; persist(); renderStep2();
+  $('#p2Target').value = b.textContent; S.target = b.textContent; persist(); renderPhoto();
 });
 $('#p2Target').addEventListener('input', e => {
   S.target = e.target.value.trim(); persist();
-  document.querySelectorAll('#p2Chips button').forEach(b => b.classList.toggle('on', b.textContent === S.target));
+  document.querySelectorAll('#p2Chips .chip').forEach(b => b.classList.toggle('on', b.textContent === S.target));
 });
 $('#p2Start').onclick = () => {
   const name = $('#p2Target').value.trim();
   if (!name) { toast('무엇을 재는지 이름을 써 주세요'); $('#p2Target').focus(); return; }
   S.target = name; S.lastMag = P.mag; persist();
-  if (M.img !== P.img) {
-    M.img = P.img; M.photoId = ++S.photoSeq; M.seg = null; persist();
-    mV.setImage(M.img);
-  }
+  if (M.img !== P.img) { M.img = P.img; M.photoId = ++S.photoSeq; M.seg = null; persist(); mV.setImage(M.img); }
   M.mag = P.mag; M.target = name; M.pts = []; M.obj = null;
-  go(3);
+  show('meas');
 };
 
-/* ========== 3단계: 측정 ========== */
-const M = { img: null, photoId: null, mag: null, target: '', mode: 'two', pts: [], obj: null, seg: null, sens: 50, tab: 'measure', lastNo: null };
+/* ========== 측정 ========== */
+const M = { img: null, photoId: null, mag: null, target: '', mode: 'two', pts: [], obj: null, seg: null, sens: 50, lastNo: null, wasDone: false };
 const mV = new Viewer($('#measViewer'), {
-  getInsets: stageInsets($('#stage3')),
+  getInsets: toolInsets($('#s-meas')),
   needsAnim: popping,
   onTap: p => measureTap(p),
   getHandles: () => M.mode === 'object' ? [] : M.pts.map((p, i) => ({ ...p, id: i })),
-  onDrag: (id, p) => { M.pts[id] = p; renderReadout(); },
+  onDrag: (id, p) => { M.pts[id] = p; updateMeasNum(); },
   drawImageSpace: c => {
-    if (M.mode === 'object' && M.obj && M.obj.ok) {
-      c.imageSmoothingEnabled = true;
-      c.drawImage(M.obj.maskCanvas, 0, 0, M.img.naturalWidth, M.img.naturalHeight);
-    }
+    if (M.mode === 'object' && M.obj && M.obj.ok) { c.imageSmoothingEnabled = true; c.drawImage(M.obj.maskCanvas, 0, 0, M.img.naturalWidth, M.img.naturalHeight); }
   },
   drawOverlay: (c, v) => {
     const map = p => v.toS(p);
@@ -1079,13 +1017,12 @@ const mV = new Viewer($('#measViewer'), {
     const p = M.pts.map(map);
     if (M.mode === 'four' && p.length >= 2) {
       gLine(c, p[0], p[1], COL.len, 1);
-      const k = 1000 / S.calib[M.mag].pxPerMm;
-      gLabel(c, `길이 ${Math.round(dist(M.pts[0], M.pts[1]) * k)}μm`, labelPos(p[0], p[1], 1), COL.len, 1);
+      gLabel(c, `길이 ${Math.round(dist(M.pts[0], M.pts[1]) * 1000 / S.calib[M.mag].pxPerMm)}μm`, labelPos(p[0], p[1], 1), COL.len, 1);
     }
     p.forEach((q, i) => gDot(c, q, (M.mode === 'four' && i >= 2) ? COL.wid : COL.len, popK('m' + i), M.mode === 'four' ? i + 1 : null));
   }
 });
-wireStage($('#stage3'), mV);
+wireTool($('#s-meas'), mV);
 function ppmNow() { return S.calib[M.mag] ? S.calib[M.mag].pxPerMm : null; }
 function currentMeasure() {
   const ppm = ppmNow(); if (!ppm) return null;
@@ -1096,112 +1033,129 @@ function currentMeasure() {
   return null;
 }
 function measureTap(p) {
-  if (!ppmNow()) { toast(`${M.mag}배율 보정값이 없어요. 1단계에서 보정해 주세요.`); return; }
+  if (!ppmNow()) { toast(`${M.mag}배율 보정값이 없어요. 먼저 보정해 주세요.`); return; }
   if (M.mode === 'object') { M.obj = { seed: p }; runObject(); return; }
   const max = M.mode === 'two' ? 2 : 4;
-  if (M.pts.length < max) { M.pts.push(p); pop.at = performance.now(); pop.key = 'm' + (M.pts.length - 1); renderMeasure(); }
-  else toast('점을 끌어서 고치거나 [다시 하기]를 누르세요');
+  if (M.pts.length < max) { M.pts.push(p); pop.at = performance.now(); pop.key = 'm' + (M.pts.length - 1); renderMeas(); }
+  else toast('점을 끌어서 고치거나 [다시]를 누르세요');
 }
-function runObject() {
+function runObject(fromSlider) {
   if (!M.obj || !M.obj.seed) return;
   if (!M.seg) M.seg = prepSeg(M.img);
-  const seed = M.obj.seed;
+  const seed = M.obj.seed, wasOk = !!M.obj.ok;
   M.obj = Object.assign({ seed }, segment(M.seg, seed, M.sens));
-  renderMeasure();
+  // 슬라이더를 움직이는 중에는 카드를 다시 그리지 않고 숫자만 바꿈 (손가락이 슬라이더에서 떨어지지 않게)
+  if (fromSlider && $('#sens') && wasOk === M.obj.ok) {
+    if (M.obj.ok) updateMeasNum();
+    mV.draw(); return;
+  }
+  renderMeas();
 }
-function renderMeasure() {
-  $('#mInfoT').textContent = M.target;
+function renderMeas() {
+  $('#mTitle').textContent = M.target;
   const c = S.calib[M.mag];
-  $('#mInfoS').textContent = c ? `${M.mag}배율 · 1mm = ${Math.round(c.pxPerMm)}픽셀` : `${M.mag}배율 · 보정값 없음`;
-  document.querySelectorAll('#mRail [data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === M.mode));
-  $('#sensRow').hidden = M.mode !== 'object';
-  $('#sensVal').textContent = M.sens;
-  let ins, sub = '';
-  const n = M.pts.length;
-  if (M.mode === 'two') {
-    if (n === 0) { ins = '길이의 한쪽 끝을 터치하세요'; sub = '손가락을 대고 움직이면 돋보기가 나와요. 손을 떼면 점이 찍혀요.'; }
-    else if (n === 1) ins = '다른 쪽 끝을 터치하세요';
-    else { ins = '맞으면 [결과에 추가]를 누르세요'; sub = '점을 끌어서 고칠 수 있어요.'; }
-  } else if (M.mode === 'four') {
-    ins = ['길이의 한쪽 끝을 터치하세요 (1/4)', '길이의 다른 쪽 끝을 터치하세요 (2/4)', '폭의 한쪽 끝을 터치하세요 (3/4)', '폭의 다른 쪽 끝을 터치하세요 (4/4)', '맞으면 [결과에 추가]를 누르세요'][n];
-    sub = n < 2 ? '길이는 가장 긴 쪽, 폭은 길이와 직각인 쪽이에요.' : n === 4 ? '점을 끌어서 고칠 수 있어요.' : '폭은 길이 선과 직각이 되게 재요.';
+  $('#mSub').textContent = c ? `${M.mag}배율 · 보정 완료` : `${M.mag}배율 · 보정값 없음`;
+  $('#resCnt').textContent = S.results.length;
+  document.querySelectorAll('#mTools [data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === M.mode));
+  const cur = currentMeasure(), n = M.pts.length;
+  const sameT = S.results.filter(r => r.target === M.target);
+  const mini = sameT.length ? `<div class="mini">${icon('chart', 'sm')}<span>${esc(M.target)} <b class="num">${sameT.length}개</b> · 평균 <b class="num">${Math.round(sameT.reduce((s, r) => s + r.len, 0) / sameT.length)}μm</b></span><button data-go="res">결과 보기</button></div>` : '';
+  const sens = M.mode === 'object' && M.obj ? `<div class="sens"><div class="row"><span>민감도</span><span class="num">${M.sens}</span></div><input id="sens" type="range" min="1" max="100" value="${M.sens}" aria-label="자동 찾기 민감도"><div class="cap" style="margin:0;font-size:13px">테두리가 너무 크면 낮추고, 너무 작으면 높여요.</div></div>` : '';
+  let h;
+  if (cur) {
+    h = `<div class="vals">
+        <div class="val"><span class="k"><i style="background:var(--len)"></i>길이</span><span class="big num" id="mBigLen">${Math.round(cur.len)}<small>μm</small></span><span class="mm num" id="mLenMm">${fmtMm(cur.len)}mm</span></div>
+        ${cur.wid != null ? `<div class="val"><span class="k"><i style="background:var(--wid)"></i>폭</span><span class="big num" id="mBigWid">${Math.round(cur.wid)}<small>μm</small></span><span class="mm num" id="mWidMm">${fmtMm(cur.wid)}mm</span></div>` : ''}
+      </div>
+      ${cur.mode === 'object' ? sens : `<p class="cap" style="margin:0">점을 끌어서 고칠 수 있어요.</p>`}
+      <div class="btnrow"><button class="btn" data-act="reset">${icon('undo')}다시</button><button class="btn primary" data-act="add">${icon('plus')}결과에 추가</button></div>${mini}`;
   } else {
-    if (!M.obj) { ins = '재고 싶은 개체의 한가운데를 터치하세요'; sub = '배경과 색이 다른 부분을 찾아 노란 테두리로 보여 줘요.'; }
-    else if (M.obj.ok) { ins = '노란 테두리가 개체와 맞나요?'; sub = '맞으면 [결과에 추가]를 누르세요. 안 맞으면 민감도를 바꾸거나 다시 터치해 보세요.'; }
-    else {
-      ins = '잘 안 잡혔어요';
-      sub = { none: '터치한 곳에서 개체를 못 찾았어요. 개체 한가운데를 다시 터치하거나 민감도를 높여 보세요.', big: '배경까지 같이 잡혔어요. 민감도를 낮춰 보세요.', small: '너무 작게 잡혔어요. 민감도를 높여 보세요.' }[M.obj.reason] + ' 그래도 안 되면 [네 점]으로 직접 재 보세요.';
+    let title, cap = '', dots = '';
+    const D = (tot, k) => `<div class="dots">${Array.from({ length: tot }, (_, i) => `<i class="${i < k ? 'on' : i === k ? 'cur' : ''}"></i>`).join('')}</div>`;
+    if (M.mode === 'two') {
+      dots = D(2, n);
+      title = n === 0 ? '길이의 한쪽 끝을 터치하세요' : '다른 쪽 끝을 터치하세요';
+      cap = n === 0 ? '손가락을 대고 움직이면 돋보기가 나와요. 손을 떼면 점이 찍혀요.' : '두 손가락으로 사진을 키우면 더 정확해요.';
+    } else if (M.mode === 'four') {
+      dots = D(4, n);
+      title = ['길이의 한쪽 끝을 터치하세요', '길이의 다른 쪽 끝을 터치하세요', '이제 폭의 한쪽 끝을 터치하세요', '폭의 다른 쪽 끝을 터치하세요'][n];
+      cap = n < 2 ? '길이는 가장 긴 쪽, 폭은 길이와 직각인 쪽이에요.' : `길이 <b class="num">${Math.round(dist(M.pts[0], M.pts[1]) * 1000 / ppmNow())}μm</b> · 폭은 길이 선과 직각이 되게 재요.`;
+    } else if (!M.obj) {
+      title = '재고 싶은 세포나 개체의 한가운데를 터치하세요';
+      cap = '세포벽으로 둘러싸인 칸이나, 배경과 색이 다른 덩어리를 찾아 테두리로 보여 줘요.';
+    } else {
+      title = '잘 안 잡혔어요';
+      cap = { none: '터치한 곳에서 개체를 못 찾았어요. 한가운데를 다시 터치하거나 민감도를 높여 보세요.', big: '배경까지 같이 잡혔어요. 민감도를 낮춰 보세요.', small: '너무 작게 잡혔어요. 민감도를 높여 보세요.' }[M.obj.reason] + ' 그래도 안 되면 <b>네 점</b>으로 직접 재 보세요.';
     }
+    h = `<div>${dots}<div class="title">${title}</div><p class="cap">${cap}</p></div>${sens}
+      ${n || M.obj ? `<button class="btn" data-act="reset">${icon('undo')}다시</button>`
+        : S.results.some(r => r.photoId === M.photoId) ? `<div class="btnrow" style="grid-template-columns:1.6fr 1fr"><button class="btn" data-pick="gal" data-for="next">${icon('image')}다음 사진 고르기</button><button class="btn" data-pick="cam" data-for="next">${icon('camera')}카메라</button></div>` : ''}${mini}`;
   }
-  M.instr = ins;
-  $('#mInstr').innerHTML = `${esc(ins)}${sub ? `<span class="sub">${esc(sub)}</span>` : ''}`;
-  renderReadout();
-  renderMini();
-  renderResults();
+  $('#mCard').innerHTML = h;
+  if ($('#sens')) $('#sens').oninput = e => { M.sens = +e.target.value; clearTimeout(sensTimer); sensTimer = setTimeout(() => runObject(true), 120); e.target.previousElementSibling.lastElementChild.textContent = M.sens; };
+  if (cur && !M.wasDone) { countUp($('#mBigLen'), Math.round(cur.len)); if (cur.wid != null) countUp($('#mBigWid'), Math.round(cur.wid)); }
+  M.wasDone = !!cur;
   mV.draw();
-  updateProgress();
 }
-function renderReadout() {
-  const ppm = ppmNow(), k = ppm ? 1000 / ppm : 0;
-  let len = null, wid = null;
-  if (ppm) {
-    if ((M.mode === 'two' || M.mode === 'four') && M.pts.length >= 2) len = dist(M.pts[0], M.pts[1]) * k;
-    if (M.mode === 'four' && M.pts.length === 4) wid = dist(M.pts[2], M.pts[3]) * k;
-    if (M.mode === 'object' && M.obj && M.obj.ok) { len = M.obj.lenPx * k; wid = M.obj.widPx * k; }
-  }
-  $('#roLen').innerHTML = len == null ? '—' : `${umHtml(len)}`;
-  $('#roWid').innerHTML = M.mode === 'two' ? '<small style="font-size:14px;margin:0">두 점은 길이만 재요</small>' : wid == null ? '—' : `${umHtml(wid)}`;
-  $('#roLen').title = len == null ? '' : fmtUm(len);
-  const chip = $('#mChip');
-  if (len == null) chip.innerHTML = `<span class="msg">${esc(M.instr || '')}</span>`;
-  else chip.innerHTML = `<span class="pill"><i style="background:${COL.len}">길이</i><b class="num">${Math.round(len)}</b><small>μm · ${fmtMm(len)}mm</small></span>` +
-    (wid == null ? '' : `<span class="pill"><i style="background:${COL.wid}">폭</i><b class="num">${Math.round(wid)}</b><small>μm</small></span>`);
-  $('#mAdd').disabled = !currentMeasure();
-  $('#mReset').disabled = !(M.pts.length || M.obj);
-}
-function renderMini() {
-  const rs = S.results.filter(r => r.target === M.target);
-  $('#mMini').innerHTML = rs.length
-    ? `<div class="mini"><span class="t"><b>${esc(M.target)}</b> ${rs.length}개 측정 · 길이 평균 <b class="num">${Math.round(rs.reduce((s, r) => s + r.len, 0) / rs.length)}μm</b></span><button data-tab-go="results">결과 보기</button></div>`
-    : `<div class="mini"><span class="t">여러 개를 재면 <b>평균</b>과 <b>그래프</b>를 볼 수 있어요.</span></div>`;
-}
-document.addEventListener('click', e => { const b = e.target.closest('[data-tab-go]'); if (b) setTab(b.dataset.tabGo); });
-function setTab(t) {
-  M.tab = t;
-  document.querySelectorAll('#mTabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
-  $('#paneMeasure').hidden = t !== 'measure'; $('#paneResults').hidden = t !== 'results';
-  $('#footMeasure').hidden = t !== 'measure'; $('#footResults').hidden = t !== 'results';
-  if ($('#stage3').classList.contains('collapsed')) { $('#stage3').classList.remove('collapsed'); setTimeout(() => mV.fit(), 320); }
-}
-$('#mTabs').addEventListener('click', e => { const b = e.target.closest('[data-tab]'); if (b) setTab(b.dataset.tab); });
-$('#mRail').addEventListener('click', e => {
-  const b = e.target.closest('[data-mode]'); if (!b) return;
-  if (M.mode === b.dataset.mode) return;
-  M.mode = b.dataset.mode; M.pts = []; M.obj = null; renderMeasure();
-});
 let sensTimer = 0;
-$('#sens').addEventListener('input', e => {
-  M.sens = +e.target.value; $('#sensVal').textContent = M.sens;
-  clearTimeout(sensTimer); sensTimer = setTimeout(runObject, 120);
+/* 측정 화면에서 바로 다음 사진 넣기: 대상은 그대로, 배율만 한 번 확인 */
+function setNextPhoto(img, url) {
+  const useMag = mag => {
+    P.img = img; P.url = url; P.mag = mag;
+    M.img = img; M.mag = mag; M.photoId = ++S.photoSeq; M.seg = null; M.pts = []; M.obj = null; M.wasDone = false;
+    S.lastMag = mag; persist();
+    mV.setImage(img);
+    if (curScreen !== 'meas') show('meas'); else { renderMeas(); requestAnimationFrame(() => mV.fit()); }
+    const w = sizeWarning(img, mag);
+    if (w) modal('사진 크기가 달라요', `<p>${esc(w)}</p>`, [{ label: '그래도 잴게요', cls: 'primary' }, { label: '다른 사진 고르기', fn: () => { pickFor = 'next'; $('#fileGal').click(); } }]);
+    else toast(`새 사진 · ${M.target} · ${mag}배율`);
+  };
+  const mags = MAGS.filter(m => S.calib[m]);
+  if (mags.length < 2) { useMag(mags[0] || M.mag); return; }
+  const cur = M.mag && S.calib[M.mag] ? M.mag : mags[0];
+  modal('이 사진은 몇 배율인가요?', `<p>${esc(M.target)} 사진을 이어서 재요.</p>`,
+    [cur, ...mags.filter(m => m !== cur)].map((m, i) => ({ label: i === 0 ? `${m}배율 (지금과 같아요)` : `${m}배율`, cls: i === 0 ? 'primary' : '', fn: () => useMag(m) })));
+}
+function updateMeasNum() {
+  const cur = currentMeasure();
+  if (!cur) { renderMeas(); return; }
+  const set = (id, v) => { const el = $(id); if (el) el.firstChild.nodeValue = v; };
+  set('#mBigLen', Math.round(cur.len)); set('#mLenMm', fmtMm(cur.len) + 'mm');
+  if (cur.wid != null) { set('#mBigWid', Math.round(cur.wid)); set('#mWidMm', fmtMm(cur.wid) + 'mm'); }
+}
+$('#mTools').addEventListener('click', e => {
+  const b = e.target.closest('[data-mode]'); if (!b || M.mode === b.dataset.mode) return;
+  M.mode = b.dataset.mode; M.pts = []; M.obj = null; M.wasDone = false; renderMeas();
 });
-$('#mReset').onclick = () => { M.pts = []; M.obj = null; renderMeasure(); };
-$('#mChange').onclick = () => go(2);
-$('#mAdd').onclick = () => {
+$('#mCard').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  if (b.dataset.act === 'reset') { M.pts = []; M.obj = null; M.wasDone = false; renderMeas(); }
+  if (b.dataset.act === 'add') addResult();
+});
+function addResult() {
   const m = currentMeasure(); if (!m) return;
   const no = ++S.seq;
   S.results.push({ no, photoId: M.photoId, target: M.target, mag: M.mag, mode: m.mode, len: m.len, wid: m.wid, geom: m.geom, at: Date.now() });
   persist();
-  M.pts = []; M.obj = null; M.lastNo = no;
+  M.pts = []; M.obj = null; M.wasDone = false; M.lastNo = no;
   const cnt = S.results.filter(r => r.target === M.target).length;
-  toast(`#${no} 추가! ${M.target} ${cnt}개째`);
-  renderMeasure();
+  toast(`${M.target} ${cnt}번째 결과를 저장했어요`);
+  renderMeas();
   const c = $('#resCnt'); c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump');
-};
+}
 
-/* ========== 결과: 요약, 그래프, 목록 ========== */
-function averages() {
+/* ⋯ 메뉴 열고 닫기 */
+$('#mMoreBtn').addEventListener('click', e => {
+  const m = $('#mMenu'), b = e.currentTarget.getBoundingClientRect(), sr = $('#s-meas').getBoundingClientRect();
+  m.style.top = (b.bottom - sr.top + 8) + 'px'; m.style.right = (sr.right - b.right) + 'px';
+  m.hidden = !m.hidden;
+});
+document.addEventListener('click', e => { if (!e.target.closest('#mMoreBtn')) $('#mMenu').hidden = true; });
+
+/* ========== 결과 ========== */
+function averages(results = S.results) {
   const groups = new Map();
-  S.results.forEach(r => { if (!groups.has(r.target)) groups.set(r.target, []); groups.get(r.target).push(r); });
+  results.forEach(r => { if (!groups.has(r.target)) groups.set(r.target, []); groups.get(r.target).push(r); });
   return [...groups].map(([target, rs]) => {
     const ls = rs.map(r => r.len), ws = rs.filter(r => r.wid != null).map(r => r.wid);
     const avg = a => a.reduce((s, v) => s + v, 0) / a.length;
@@ -1209,63 +1163,86 @@ function averages() {
       nw: ws.length, wid: ws.length ? avg(ws) : null, wmin: ws.length ? Math.min(...ws) : null, wmax: ws.length ? Math.max(...ws) : null, ws };
   });
 }
-function dotPlot(vals, color, avg) {
-  const W = 320, H = 70, pad = 18;
-  let lo = Math.min(...vals), hi = Math.max(...vals);
-  if (hi - lo < 10) { const m = (hi + lo) / 2; lo = m - 5; hi = m + 5; }
-  const sp = hi - lo; lo -= sp * 0.1; hi += sp * 0.1;
-  const X = v => pad + (v - lo) / (hi - lo) * (W - 2 * pad);
-  const base = 40, placed = [];
-  const dots = vals.map(v => {
-    const x = X(v); let lvl = 0;
-    while (placed.some(p => p.lvl === lvl && Math.abs(p.x - x) < 11)) lvl++;
-    placed.push({ x, lvl });
-    return `<circle cx="${x.toFixed(1)}" cy="${Math.max(8, base - lvl * 10)}" r="5.5" fill="${color}" fill-opacity=".8" stroke="#fff" stroke-width="1.5"><title>${Math.round(v)}μm</title></circle>`;
-  }).join('');
-  const ax = X(avg);
-  const lbl = `평균 ${Math.round(avg)}`, lw = lbl.length * 6.6 + 12, lx = clamp(ax, lw / 2 + 2, W - lw / 2 - 2);
-  return `<svg class="plot" viewBox="0 0 ${W} ${H}" role="img" aria-label="측정값 분포">
-    <line x1="${pad}" y1="${base + 9}" x2="${W - pad}" y2="${base + 9}" stroke="#E3E8EF" stroke-width="2"/>
-    <line x1="${ax}" y1="2" x2="${ax}" y2="${base + 12}" stroke="#0F1B2D" stroke-width="1.5" stroke-dasharray="3 3"/>
-    ${dots}
-    <text x="${pad}" y="${H - 4}" font-size="11" fill="#64748B" font-weight="600">${Math.round(Math.min(...vals))}μm</text>
-    <text x="${W - pad}" y="${H - 4}" font-size="11" fill="#64748B" font-weight="600" text-anchor="end">${Math.round(Math.max(...vals))}μm</text>
-    <rect x="${lx - lw / 2}" y="${H - 17}" width="${lw}" height="16" rx="8" fill="#0F1B2D"/>
-    <text x="${lx}" y="${H - 5}" font-size="11" fill="#fff" font-weight="800" text-anchor="middle">${lbl}</text></svg>`;
+function niceTicks(lo, hi, count = 4) {
+  const span = hi - lo, raw = span / count, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1, 2, 5, 10].map(k => k * mag).find(s => span / s <= count + 0.5) || 10 * mag;
+  const out = []; for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(Math.round(v * 1000) / 1000);
+  return out;
 }
-function renderResults() {
-  const R = S.results;
-  $('#resCnt').textContent = R.length;
+function chart(vals, avg, color, soft) {
+  const W = 560, H = 132, L = 8, R = 8, base = 84;
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  if (hi - lo < 10) { const m = (hi + lo) / 2; lo = m - 6; hi = m + 6; }
+  const sp = hi - lo; lo -= sp * 0.15; hi += sp * 0.15;
+  const X = v => L + (v - lo) / (hi - lo) * (W - L - R);
+  const ticks = niceTicks(lo, hi);
+  const placed = [];
+  const dots = vals.map((v, i) => {
+    const x = X(v); let lvl = 0;
+    while (placed.some(p => p.lvl === lvl && Math.abs(p.x - x) < 15)) lvl++;
+    placed.push({ x, lvl });
+    return `<circle cx="${x.toFixed(1)}" cy="${Math.max(40, base - 10 - lvl * 14)}" r="6.5" fill="${color}" stroke="#fff" stroke-width="2"><title>${Math.round(v)}μm</title></circle>`;
+  }).join('');
+  const mn = Math.min(...vals), mx = Math.max(...vals), ax = X(avg);
+  const lbl = `평균 ${Math.round(avg)}μm`, lw = lbl.length * 7.6 + 20, lx = clamp(ax, lw / 2, W - lw / 2);
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="측정값 분포, 평균 ${Math.round(avg)}마이크로미터">
+    <rect x="${X(mn) - 10}" y="${base - 54}" width="${X(mx) - X(mn) + 20}" height="58" rx="12" fill="${soft}"/>
+    ${ticks.map(t => `<line x1="${X(t)}" y1="${base + 6}" x2="${X(t)}" y2="${base + 12}" stroke="#D1D6DB" stroke-width="1.5"/><text x="${X(t)}" y="${base + 30}" text-anchor="middle" font-size="13" fill="#6B7684" font-weight="600">${t}</text>`).join('')}
+    <line x1="${L}" y1="${base + 6}" x2="${W - R}" y2="${base + 6}" stroke="#E5E8EB" stroke-width="2"/>
+    <line x1="${ax}" y1="${base - 62}" x2="${ax}" y2="${base + 6}" stroke="#191F28" stroke-width="2" stroke-dasharray="4 4"/>
+    ${dots}
+    <rect x="${lx - lw / 2}" y="0" width="${lw}" height="24" rx="12" fill="#191F28"/>
+    <text x="${lx}" y="16.5" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">${lbl}</text>
+    <text x="${W - R}" y="${H - 2}" text-anchor="end" font-size="12" fill="#6B7684" font-weight="600">단위 μm</text></svg>`;
+}
+function renderRes() {
+  const R = S.results, avs = averages();
   $('#csvBtn').disabled = !R.length;
-  $('#listLbl').hidden = !R.length;
+  $('#resBack').onclick = () => show(M.img ? 'meas' : 'home');
+  $('#rMore').onclick = () => show(M.img ? 'meas' : 'photo');
   if (!R.length) {
-    $('#sumWrap').innerHTML = `<div class="emptyres">아직 결과가 없어요.<br>측정하고 [결과에 추가]를 누르세요.</div>`;
-    $('#resWrap').innerHTML = ''; return;
+    $('#rHead').innerHTML = '';
+    $('#rCards').innerHTML = `<div class="rempty" style="grid-column:1/-1"><b>아직 결과가 없어요</b>측정하고 [결과에 추가]를 누르면 여기에 모여요.</div>`;
+    $('#rList').hidden = true; return;
   }
-  const avs = averages().sort((a, b) => (a.target === M.target ? -1 : b.target === M.target ? 1 : 0));
-  $('#sumWrap').innerHTML = avs.map(a => `<div class="sum">
-      <div class="sum-head"><b>${esc(a.target)}</b><span class="pill-n num">${a.n}개</span></div>
-      <div class="metric"><span class="k"><i style="background:var(--len-ink)"></i>길이 평균</span><span class="v num">${umHtml(a.len)}<small>${fmtMm(a.len)}mm</small></span>
-        <span class="muted num" style="font-size:13px">가장 작은 값 ${Math.round(a.lmin)}μm ~ 가장 큰 값 ${Math.round(a.lmax)}μm</span></div>
-      ${a.n >= 2 ? dotPlot(a.ls, '#0E8F86', a.len) : ''}
-      ${a.wid != null ? `<div class="metric"><span class="k"><i style="background:var(--wid-ink)"></i>폭 평균 <span class="num">(${a.nw}개)</span></span><span class="v num">${umHtml(a.wid)}<small>${fmtMm(a.wid)}mm</small></span></div>
-      ${a.nw >= 2 ? dotPlot(a.ws, '#0284C7', a.wid) : ''}` : ''}
-      ${a.n < 2 ? '<span class="muted" style="font-size:13px">2개 이상 재면 그래프가 나와요.</span>' : ''}
+  $('#rList').hidden = false;
+  let compare = '';
+  if (avs.length >= 2) {
+    const s = avs.slice().sort((a, b) => b.len - a.len), big = s[0], small = s[s.length - 1];
+    compare = `<p>${esc(josa(big.target, '은', '는'))} ${esc(small.target)}보다 평균 <b class="num" style="color:var(--accent-text)">${(big.len / small.len).toFixed(1)}배</b> 길어요.</p>`;
+  } else if (avs[0].n >= 2) {
+    const a = avs[0];
+    compare = `<p>가장 짧은 것과 가장 긴 것의 차이는 <b class="num" style="color:var(--accent-text)">${Math.round(a.lmax - a.lmin)}μm</b>예요. 같은 생물도 크기가 조금씩 달라요.</p>`;
+  } else compare = `<p>여러 개를 재면 평균과 분포를 볼 수 있어요.</p>`;
+  $('#rHead').innerHTML = `<h1>모두 <span class="num">${R.length}</span>개를 측정했어요</h1>${compare}`;
+  const order = avs.sort((a, b) => (a.target === M.target ? -1 : b.target === M.target ? 1 : b.n - a.n));
+  $('#rCards').innerHTML = order.map(a => `<div class="tcard">
+      <div class="th"><b>${esc(a.target)}</b><span class="n num">${a.n}개</span></div>
+      <div class="metrics">
+        <div class="val"><span class="k"><i style="background:var(--len-ink)"></i>평균 길이</span><span class="big md num">${Math.round(a.len)}<small>μm</small></span><span class="mm num">${fmtMm(a.len)}mm</span></div>
+        ${a.wid != null ? `<div class="val"><span class="k"><i style="background:var(--wid-ink)"></i>평균 폭</span><span class="big md num">${Math.round(a.wid)}<small>μm</small></span><span class="mm num">${fmtMm(a.wid)}mm · ${a.nw}개</span></div>` : ''}
+      </div>
+      ${a.n >= 2 ? `<div>${chart(a.ls, a.len, '#0B7F75', '#E4F4F2')}<div class="range num">길이 ${Math.round(a.lmin)}μm ~ ${Math.round(a.lmax)}μm</div></div>` : '<div class="range">2개 이상 재면 분포 그래프가 나와요.</div>'}
+      ${a.nw >= 2 ? `<div>${chart(a.ws, a.wid, '#0369A1', '#E6F1F8')}<div class="range num">폭 ${Math.round(a.wmin)}μm ~ ${Math.round(a.wmax)}μm</div></div>` : ''}
     </div>`).join('');
-  $('#resWrap').innerHTML = R.slice().reverse().map(r => `<div class="ritem ${r.no === M.lastNo ? 'enter' : ''}">
+  $('#rList').innerHTML = `<div class="rhd">전체 기록</div>` + R.slice().reverse().map(r => `<div class="rrow ${r.no === M.lastNo ? 'enter' : ''}">
       <span class="no num">${r.no}</span>
-      <div class="t"><b>${esc(r.target)}</b><span>${r.mag}배율 · ${MODE_NAME[r.mode]}</span></div>
-      <div class="vals num">${Math.round(r.len)}μm<span>${r.wid != null ? `폭 ${Math.round(r.wid)}μm` : '길이만'}</span></div>
+      <div class="t"><b>${esc(r.target)}</b><span>${r.mag}배율 · ${MODE_NAME[r.mode]} · ${whenText(r.at)}</span></div>
+      <div class="v num"><b>${Math.round(r.len)}μm</b><span>${r.wid != null ? `폭 ${Math.round(r.wid)}μm` : '길이만'}</span></div>
       <button class="del" data-del="${r.no}" aria-label="${r.no}번 지우기">${icon('trash', 'sm')}</button></div>`).join('');
   M.lastNo = null;
 }
-$('#resWrap').addEventListener('click', e => {
+$('#rList').addEventListener('click', e => {
   const b = e.target.closest('[data-del]'); if (!b) return;
-  const no = +b.dataset.del;
-  modal(`${no}번 결과를 지울까요?`, '', [
-    { label: '지우기', cls: 'danger', fn: () => { S.results = S.results.filter(r => r.no !== no); persist(); renderMeasure(); } },
-    { label: '취소' }
-  ]);
+  const no = +b.dataset.del, idx = S.results.findIndex(r => r.no === no);
+  if (idx < 0) return;
+  const [rec] = S.results.splice(idx, 1);
+  persist(); renderRes();
+  toast(`${no}번 기록을 지웠어요`, 5000, { label: '되돌리기', fn: () => {
+    S.results.splice(Math.min(idx, S.results.length), 0, rec); persist();
+    if (curScreen === 'res') renderRes(); else if (curScreen === 'meas') renderMeas(); else if (curScreen === 'home') renderHome();
+    toast('되돌렸어요');
+  } });
 });
 
 /* ========== CSV ========== */
@@ -1290,7 +1267,7 @@ function downloadBlob(blob, name) {
 function downloadCSV() {
   if (!S.results.length) { toast('저장할 결과가 없어요'); return; }
   downloadBlob(new Blob([csvText()], { type: 'text/csv;charset=utf-8' }), `현미경측정_${ymd()}.csv`);
-  toast('CSV 파일을 저장했어요 (다운로드 폴더)');
+  toast('CSV 파일을 다운로드 폴더에 저장했어요');
 }
 $('#csvBtn').onclick = downloadCSV;
 
@@ -1314,27 +1291,29 @@ $('#mSaveImg').onclick = () => {
   // 왼쪽 아래 측정값 목록
   {
     const lf = 20 * u, lh = lf * 1.5, pad = 14 * u;
-    c.font = `800 ${lf}px system-ui, "Noto Sans KR", sans-serif`; c.textBaseline = 'middle'; c.textAlign = 'left';
+    c.font = `700 ${lf}px ${CFONT}`; c.textBaseline = 'middle'; c.textAlign = 'left';
     const lines = list.map(r => [`#${r.no} ${MODE_NAME[r.mode]}`, `길이 ${Math.round(r.len)}μm`, r.wid != null ? `폭 ${Math.round(r.wid)}μm` : '']);
     const w0 = Math.max(...lines.map(l => c.measureText(l[0]).width)), w1 = Math.max(...lines.map(l => c.measureText(l[1]).width)), w2 = Math.max(...lines.map(l => c.measureText(l[2]).width));
     const gap = lf * 0.8, bw = pad * 2 + w0 + gap + w1 + (w2 ? gap + w2 : 0), bh = pad * 2 + lh * lines.length;
     const bx = 14 * u, by = H - bh - 14 * u;
-    c.fillStyle = 'rgba(0,0,0,.72)'; roundRect(c, bx, by, bw, bh, 10 * u); c.fill();
+    c.save(); c.shadowColor = 'rgba(0,0,0,.3)'; c.shadowBlur = 10 * u;
+    c.fillStyle = 'rgba(255,255,255,.96)'; roundRect(c, bx, by, bw, bh, 14 * u); c.fill(); c.restore();
     lines.forEach((l, i) => {
       const y = by + pad + lh * (i + 0.5);
-      c.fillStyle = '#fff'; c.fillText(l[0], bx + pad, y);
-      c.fillStyle = COL.len; c.fillText(l[1], bx + pad + w0 + gap, y);
-      if (l[2]) { c.fillStyle = COL.wid; c.fillText(l[2], bx + pad + w0 + gap + w1 + gap, y); }
+      c.fillStyle = '#191F28'; c.fillText(l[0], bx + pad, y);
+      c.fillStyle = '#0B7F75'; c.fillText(l[1], bx + pad + w0 + gap, y);
+      if (l[2]) { c.fillStyle = '#0369A1'; c.fillText(l[2], bx + pad + w0 + gap + w1 + gap, y); }
     });
   }
   // 왼쪽 위 정보
   const d = new Date();
   const head = `${M.target} · ${M.mag}배율 · ${d.getFullYear()}.${pad2(d.getMonth() + 1)}.${pad2(d.getDate())}`;
   const fs = 24 * u;
-  c.font = `800 ${fs}px system-ui, "Noto Sans KR", sans-serif`; c.textBaseline = 'middle'; c.textAlign = 'left';
+  c.font = `700 ${fs}px ${CFONT}`; c.textBaseline = 'middle'; c.textAlign = 'left';
   const hw = c.measureText(head).width + fs * 1.2, hh = fs * 1.8;
-  c.fillStyle = 'rgba(0,0,0,.7)'; roundRect(c, 14 * u, 14 * u, hw, hh, 10 * u); c.fill();
-  c.fillStyle = '#fff'; c.fillText(head, 14 * u + fs * 0.6, 14 * u + hh / 2);
+  c.save(); c.shadowColor = 'rgba(0,0,0,.3)'; c.shadowBlur = 10 * u;
+  c.fillStyle = 'rgba(255,255,255,.96)'; roundRect(c, 14 * u, 14 * u, hw, hh, hh / 2); c.fill(); c.restore();
+  c.fillStyle = '#191F28'; c.fillText(head, 14 * u + fs * 0.6, 14 * u + hh / 2);
   // 오른쪽 아래 축척 막대
   const ppm = S.calib[M.mag] ? S.calib[M.mag].pxPerMm : null;
   if (ppm) {
@@ -1355,6 +1334,8 @@ $('#mSaveImg').onclick = () => {
     toast('측정선 그린 사진을 저장했어요 (다운로드 폴더)');
   }, 'image/jpeg', 0.92);
 };
+
+
 
 
 
@@ -1443,32 +1424,150 @@ function segment(sd, seed, sens) {
   const D = new Float32Array(n);
   for (let i = 0; i < n; i++) { const dr = R[i] - br, dg = G[i] - bg, db = B[i] - bb; D[i] = Math.sqrt(dr * dr + dg * dg + db * db); }
   const maskAt = t => { const m = new Uint8Array(n); for (let i = 0; i < n; i++) m[i] = D[i] > t ? 1 : 0; return morph(morph(m, w, h, 2, true), w, h, 2, false); };
-  // 3) 1차: 민감도 기준으로 개체 찾기
   const tol = 70 - sens * 0.6;
-  let res = growRegion(maskAt(tol), w, h, sx, sy);
-  if (!res.ok) return res;
-  // 4) 2차: 경계가 흐릿하면 개체 색과 배경 색의 중간에서 경계를 다시 잡기
-  const ds = []; for (let i = 0; i < n; i += 1) if (res.reg[i]) ds.push(D[i]);
-  ds.sort((a, b) => a - b);
-  const core = ds[Math.floor(ds.length * 0.75)];
-  const t2 = Math.max(tol, core * 0.5);
-  if (t2 > tol * 1.05) {
-    const res2 = growRegion(maskAt(t2), w, h, sx, sy);
-    if (res2.ok) res = res2;
+  let res = null;
+  // 3) 세포 모드: 진한 세포벽으로 둘러싸인 칸을 찾음 (양파 표피세포처럼 세포가 붙어 있을 때)
+  let mCell = null;
+  const cellFrom = (cx, cy) => {
+    if (!mCell) { const m0 = new Uint8Array(n); for (let i = 0; i < n; i++) m0[i] = D[i] <= tol ? 1 : 0; mCell = morph(m0, w, h, 1, false); } // 한 칸 깎아서 벽의 작은 틈으로 새지 않게
+    const c0 = growRegion(mCell, w, h, cx, cy);
+    return c0.ok ? { ok: true, cell: true, reg: morph(c0.reg, w, h, 1, true) } : null; // 깎은 만큼 되돌림
+  };
+  if (D[sy * w + sx] <= tol) res = cellFrom(sx, sy);
+  // 4) 개체 모드: 배경과 색이 다른 덩어리 (짚신벌레처럼 떨어져 있을 때)
+  if (!res) {
+    res = growRegion(maskAt(tol), w, h, sx, sy);
+    // 덩어리가 너무 크게 잡히면(세포 속 핵을 눌렀을 때 등) 가장 가까운 세포 안쪽 색에서 세포 모드로 다시
+    if (!res.ok && res.reason === 'big') {
+      let best = -1, bd = Infinity; const r = 16;
+      for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+        const x = sx + dx, y = sy + dy; if (x < 0 || y < 0 || x >= w || y >= h) continue;
+        const d2 = dx * dx + dy * dy; if (d2 < bd && D[y * w + x] <= tol) { bd = d2; best = y * w + x; }
+      }
+      if (best >= 0) { const c1 = cellFrom(best % w, (best / w) | 0); if (c1) res = c1; }
+    }
+    if (!res.ok) return res;
+    // 경계가 흐릿하면 개체 색과 배경 색의 중간에서 경계를 다시 잡기
+    if (!res.cell) {
+    const ds = []; for (let i = 0; i < n; i += 1) if (res.reg[i]) ds.push(D[i]);
+    ds.sort((a, b) => a - b);
+    const core = ds[Math.floor(ds.length * 0.75)];
+    const t2 = Math.max(tol, core * 0.5);
+    if (t2 > tol * 1.05) {
+      const res2 = growRegion(maskAt(t2), w, h, sx, sy);
+      if (res2.ok) res = res2;
+    }
+    }
   }
+  // 5) 살짝 붙은 다른 개체 떼어 내기 (개체 모드일 때만)
+  if (!res.cell) res.reg = splitTouching(res.reg, w, h, sx, sy, D);
   const reg = res.reg;
-  // 5) 윤곽 그림, 회전 사각형
+  // 6) 윤곽 그림, 회전 사각형
   const mc = document.createElement('canvas'); mc.width = w; mc.height = h;
   const mx = mc.getContext('2d'), id = mx.createImageData(w, h), DD = id.data;
   const pts = [];
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
     const i = y * w + x; if (!reg[i]) continue;
     const edge = x === 0 || y === 0 || x === w - 1 || y === h - 1 || !reg[i - 1] || !reg[i + 1] || !reg[i - w] || !reg[i + w];
-    const j = i * 4; DD[j] = 255; DD[j + 1] = 212; DD[j + 2] = 0; DD[j + 3] = edge ? 240 : 50;
+    const j = i * 4; if (edge) { DD[j] = 255; DD[j + 1] = 255; DD[j + 2] = 255; DD[j + 3] = 255; } else { DD[j] = 11; DD[j + 1] = 150; DD[j + 2] = 138; DD[j + 3] = 95; }
     if (edge) pts.push({ x: x / fx, y: y / fy }, { x: (x + 1) / fx, y: y / fy }, { x: x / fx, y: (y + 1) / fy }, { x: (x + 1) / fx, y: (y + 1) / fy });
   }
   mx.putImageData(id, 0, 0);
   return Object.assign({ ok: true, maskCanvas: mc }, minAreaRect(convexHull(pts)));
+}
+/* 살짝 붙은 개체 떼어 내기
+   (1) 경계선: 두 개체 사이의 틈이나 경계는 몸통보다 색이 연하다. 기준을 높여 가며 덩어리가 큰 조각 둘 이상으로 나뉘는지 본다.
+   (2) 좁은 목: 덩어리를 바깥부터 한 겹씩 깎으면, 두 개체를 잇는 좁은 연결 부분이 먼저 끊어진다.
+   나뉘면 각 조각에서 동시에 다시 넓혀 원래 덩어리를 나눠 갖고, 터치한 곳의 조각만 남긴다.
+   안전장치: 원래 덩어리가 이미 볼록한 한 개체 모양이면 나누지 않고, 나눈 조각이 더 매끈한(볼록한) 모양일 때만 받아들인다. */
+function splitTouching(reg, w, h, sx, sy, D) {
+  let x0 = w, y0 = h, x1 = -1, y1 = -1;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (reg[y * w + x]) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  if (x1 < 0) return reg;
+  x0 = Math.max(0, x0 - 1); y0 = Math.max(0, y0 - 1); x1 = Math.min(w - 1, x1 + 1); y1 = Math.min(h - 1, y1 + 1);
+  const bw = x1 - x0 + 1, bh = y1 - y0 + 1, bn = bw * bh;
+  const R = new Uint8Array(bn), Dc = new Float32Array(bn); let area = 0;
+  for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) { const k = (y + y0) * w + x + x0, i = y * bw + x; R[i] = reg[k]; Dc[i] = D[k]; area += R[i]; }
+  // 볼록한 정도: 넓이 ÷ 볼록 껍질 넓이 (한 개체 ≈ 0.95 이상, 붙은 두 개체는 더 낮음)
+  const solidity = m => {
+    const pts = []; let n = 0;
+    for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) {
+      const i = y * bw + x; if (!m[i]) continue; n++;
+      if (x === 0 || y === 0 || x === bw - 1 || y === bh - 1 || !m[i - 1] || !m[i + 1] || !m[i - bw] || !m[i + bw])
+        pts.push({ x, y }, { x: x + 1, y }, { x, y: y + 1 }, { x: x + 1, y: y + 1 });
+    }
+    const H = convexHull(pts); let A = 0;
+    for (let i = 0; i < H.length; i++) { const p = H[i], q = H[(i + 1) % H.length]; A += p.x * q.y - q.x * p.y; }
+    return A ? n / Math.abs(A / 2) : 1;
+  };
+  const sol0 = solidity(R);
+  if (sol0 > 0.93) return reg;
+  const lab = new Int32Array(bn), st = new Int32Array(bn);
+  const label = m => {
+    lab.fill(0); const sizes = [0]; let L = 0;
+    for (let i = 0; i < bn; i++) {
+      if (!m[i] || lab[i]) continue;
+      L++; let top = 0, c = 0; st[top++] = i; lab[i] = L;
+      while (top) {
+        const j = st[--top]; c++; const x = j % bw;
+        if (x > 0 && m[j - 1] && !lab[j - 1]) { lab[j - 1] = L; st[top++] = j - 1; }
+        if (x < bw - 1 && m[j + 1] && !lab[j + 1]) { lab[j + 1] = L; st[top++] = j + 1; }
+        if (j >= bw && m[j - bw] && !lab[j - bw]) { lab[j - bw] = L; st[top++] = j - bw; }
+        if (j < bn - bw && m[j + bw] && !lab[j + bw]) { lab[j + bw] = L; st[top++] = j + bw; }
+      }
+      sizes.push(c);
+    }
+    return sizes;
+  };
+  // 조각들로 원래 덩어리를 나눠 갖고, 터치한 쪽 조각을 돌려줌 (조건에 안 맞으면 null)
+  const tryPieces = m => {
+    let tot = 0; for (let i = 0; i < bn; i++) tot += m[i];
+    if (tot < 12) return null;
+    const sizes = label(m);
+    const isBig = new Uint8Array(sizes.length); let nBig = 0;
+    for (let L = 1; L < sizes.length; L++) if (sizes[L] >= Math.max(10, tot * 0.12)) { isBig[L] = 1; nBig++; }
+    if (nBig < 2) return null;
+    const mark = new Int32Array(bn), q = new Int32Array(bn); let qh = 0, qt = 0;
+    for (let i = 0; i < bn; i++) if (lab[i] && isBig[lab[i]]) { mark[i] = lab[i]; q[qt++] = i; }
+    while (qh < qt) {
+      const j = q[qh++], x = j % bw, L = mark[j];
+      if (x > 0 && R[j - 1] && !mark[j - 1]) { mark[j - 1] = L; q[qt++] = j - 1; }
+      if (x < bw - 1 && R[j + 1] && !mark[j + 1]) { mark[j + 1] = L; q[qt++] = j + 1; }
+      if (j >= bw && R[j - bw] && !mark[j - bw]) { mark[j - bw] = L; q[qt++] = j - bw; }
+      if (j < bn - bw && R[j + bw] && !mark[j + bw]) { mark[j + bw] = L; q[qt++] = j + bw; }
+    }
+    const lx = sx - x0, ly = sy - y0; let sl = 0;
+    if (lx >= 0 && ly >= 0 && lx < bw && ly < bh) sl = mark[ly * bw + lx];
+    if (!sl) { let bd = Infinity; for (let i = 0; i < bn; i++) if (mark[i]) { const dx = i % bw - lx, dy = ((i / bw) | 0) - ly, d = dx * dx + dy * dy; if (d < bd) { bd = d; sl = mark[i]; } } }
+    const piece = new Uint8Array(bn); let pa = 0;
+    for (let i = 0; i < bn; i++) if (mark[i] === sl) { piece[i] = 1; pa++; }
+    if (pa < area * 0.15 || solidity(piece) < sol0 + 0.03) return null;
+    return piece;
+  };
+  let piece = null;
+  // (1) 경계선으로 나누기
+  const ds = []; for (let i = 0; i < bn; i++) if (R[i]) ds.push(Dc[i]);
+  ds.sort((p, q) => p - q);
+  const core = ds[Math.floor(ds.length * 0.75)];
+  for (const f of [0.55, 0.7, 0.85]) {
+    const m = new Uint8Array(bn); for (let i = 0; i < bn; i++) m[i] = R[i] && Dc[i] > core * f ? 1 : 0;
+    piece = tryPieces(morph(m, bw, bh, 1, false));
+    if (piece) break;
+  }
+  // (2) 좁은 목 깎아 나누기
+  if (!piece) {
+    let er = R;
+    for (let k = 1; k <= 16 && !piece; k++) {
+      er = morph(er, bw, bh, 1, false);
+      let tot = 0; for (let i = 0; i < bn; i++) tot += er[i];
+      if (tot < area * 0.04 || tot < 12) break;
+      piece = tryPieces(er);
+    }
+  }
+  if (!piece) return reg;
+  const out = new Uint8Array(w * h);
+  for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) if (piece[y * bw + x]) out[(y + y0) * w + x + x0] = 1;
+  return out;
 }
 function convexHull(P) {
   const p = P.slice().sort((a, b) => a.x - b.x || a.y - b.y);
@@ -1498,90 +1597,104 @@ function minAreaRect(H) {
 
 
 
-/* ========== 단계 이동, 끝내기 ========== */
-let curStep = 0;
-function updateProgress() {
-  const calOK = Object.keys(S.calib).length > 0;
-  const done = { 1: calOK, 2: !!M.img, 3: S.results.length > 0 };
-  document.querySelectorAll('#progress button').forEach(b => {
-    const s = +b.dataset.step;
-    b.classList.toggle('active', s === curStep);
-    b.classList.toggle('done', done[s] && s !== curStep);
-    b.querySelector('.dot').innerHTML = done[s] && s !== curStep ? icon('check', 'sm') : s;
-    b.disabled = curStep === 0;
-  });
-  document.querySelectorAll('#progress .bar').forEach(b => b.classList.toggle('done', !!done[+b.dataset.bar]));
-  $('#endBtn').hidden = curStep === 0;
-}
-function go(n) {
-  if (n === 3 && !M.img) { if (curStep !== 2) toast('먼저 측정할 사진을 넣어 주세요'); n = 2; }
-  if (n === 2 && !Object.keys(S.calib).length) { toast('먼저 1단계에서 보정해 주세요'); n = 1; }
-  curStep = n;
-  document.querySelectorAll('.step').forEach(s => s.classList.toggle('active', s.id === 'step' + n));
-  if (n === 0) renderHome();
-  if (n === 1) { renderCalib(); requestAnimationFrame(() => { calV.resize(); calV.fit(); }); }
-  if (n === 2) renderStep2();
-  if (n === 3) { renderMeasure(); requestAnimationFrame(() => { mV.resize(); mV.fit(); }); }
-  updateProgress();
-}
-document.querySelectorAll('#progress button').forEach(b => b.onclick = () => go(+b.dataset.step));
-$('#homeBtn').onclick = () => { if (curStep !== 0) go(0); };
 
+
+/* ========== 홈 ========== */
+let stored = null, started = false;
+function renderHome() {
+  const pending = !!stored && !started;
+  const src = pending ? stored : S;
+  const calN = MAGS.filter(m => src.calib && src.calib[m]);
+  const avs = averages(src.results || []);
+  const nRes = (src.results || []).length;
+  $('#hStorage').hidden = storageOK;
+  // 제목과 요약
+  if (nRes && !pending) {
+    const top = avs.slice().sort((a, b) => b.n - a.n)[0];
+    $('#hKicker').textContent = '오늘의 탐구';
+    $('#hTitle').innerHTML = `${esc(josa(top.target, '을', '를'))}<br><em class="num">${top.n}개</em> 쟀어요`;
+    $('#hSub').textContent = top.n >= 2 ? '여러 개를 잴수록 평균이 더 믿을 만해져요. 더 재 볼까요?' : '하나 더 재면 평균과 분포 그래프를 볼 수 있어요.';
+    $('#hStat').innerHTML = `<div class="stat"><div><div class="v num">${Math.round(top.len)}<small>μm</small></div><div class="l">평균 길이</div></div>${top.wid != null ? `<div><div class="v num">${Math.round(top.wid)}<small>μm</small></div><div class="l">평균 폭</div></div>` : ''}<div><div class="v num">${nRes}<small>개</small></div><div class="l">전체 기록</div></div></div>`;
+  } else {
+    $('#hKicker').textContent = '생명 탐구 · 세포 크기 재기';
+    $('#hTitle').innerHTML = '현미경 사진으로<br><em>진짜 크기</em>를 재 봐요';
+    $('#hSub').textContent = '대물 마이크로미터로 보정하고 사진을 터치하면, 실제 길이를 μm로 알려 줘요.';
+    $('#hStat').innerHTML = '';
+  }
+  $('#hResume').innerHTML = pending
+    ? `<div class="resume"><b>이어서 할까요?</b><p class="num">${stored.savedAt ? esc(whenText(stored.savedAt)) + '에 ' : ''}저장한 값이 있어요 · 보정 ${calN.map(m => m + '배율').join(', ') || '없음'} · 측정 ${nRes}개<br>다른 사람이 쓰던 값이면 [새로 시작]을 누르세요.</p>
+        <div class="btnrow"><button class="btn" id="hNew" style="background:#fff">새로 시작</button><button class="btn primary" id="hResumeBtn">이어서 하기</button></div></div>`
+    : '';
+  // 진행 상황 목록
+  const row = (go, ic, title, sub, done, dis) => `<button class="lrow ${done ? 'done' : ''}" data-go="${go}" ${dis ? 'disabled' : ''}><span class="lic">${icon(ic)}</span><span class="lt"><b>${title}</b><span>${sub}</span></span>${icon('chev', 'chev')}</button>`;
+  const photoOk = !pending && !!M.img;
+  $('#hList').innerHTML =
+    row('cal', 'target', '보정', calN.length ? `${calN.map(m => m + '배율').join(' · ')} 완료` : '대물 마이크로미터로 1mm 크기 알기', calN.length > 0, pending) +
+    row('photo', 'image', '사진 넣기', photoOk ? `${esc(M.target)} · ${M.mag}배율 사진` : '현미경 사진과 배율, 대상 고르기', photoOk, pending || !calN.length) +
+    row('res', 'chart', '측정 결과', nRes ? `${nRes}개 · ${avs.map(a => `${esc(a.target)} ${Math.round(a.len)}μm`).join(', ')}` : '여러 개를 재면 평균과 그래프', nRes > 0, pending || !nRes);
+  $('#hHow').hidden = nRes > 0 && !pending;
+  // 아래 버튼
+  const cta = $('#hCta');
+  cta.hidden = pending;
+  if (!calN.length) { cta.textContent = '보정 시작하기'; cta.onclick = () => { started = true; show('cal'); }; }
+  else if (!M.img) { cta.textContent = '사진 넣기'; cta.onclick = () => { started = true; show('photo'); }; }
+  else { cta.textContent = '측정 계속하기'; cta.onclick = () => show('meas'); }
+  $('#hEnd').hidden = pending || !(calN.length || nRes);
+  if (pending) {
+    $('#hResumeBtn').onclick = () => { S = stored; stored = null; started = true; renderHome(); };
+    $('#hNew').onclick = () => {
+      if ((stored.results || []).length) { S = stored; endSession(() => { S = freshState(); }); }
+      else { clearStored(); stored = null; started = true; renderHome(); }
+    };
+  }
+}
+$('#hEnd').onclick = () => endSession();
+$('#rEnd').onclick = () => endSession();
+
+/* ========== 화면 이동, 끝내기 ========== */
+let curScreen = 'home';
+function show(name) {
+  if (name === 'res' && !S.results.length && curScreen === 'home') return;
+  if ((name === 'photo' || name === 'meas') && !Object.keys(S.calib).length) { toast('먼저 보정해 주세요'); name = 'cal'; }
+  if (name === 'meas' && !M.img) name = 'photo';
+  started = true;
+  if (name !== curScreen) { $('#toast').hidden = true; $('#mMenu').hidden = true; }
+  curScreen = name;
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 's-' + name));
+  ({ home: renderHome, cal: renderCal, photo: renderPhoto, meas: renderMeas, res: renderRes })[name]();
+  if (name === 'cal') requestAnimationFrame(() => { calV.resize(); calV.fit(); });
+  if (name === 'meas') requestAnimationFrame(() => { mV.resize(); mV.fit(); });
+  const sc = document.querySelector('#s-' + name + ' .page-scroll'); if (sc) sc.scrollTop = 0;
+}
 function resetAll() {
   clearStored();
   S = freshState(); stored = null; started = true;
   [1, 4].forEach(m => { const s = cal.byMag[m]; if (s.url) URL.revokeObjectURL(s.url); cal.byMag[m] = { img: null, url: null, pts: [] }; });
-  cal.mag = 1;
+  cal.mag = 1; cal.justSaved = null; cal.ticks = 100;
   P.img = null; P.url = null; P.mag = null;
-  Object.assign(M, { img: null, photoId: null, mag: null, target: '', pts: [], obj: null, seg: null });
+  Object.assign(M, { img: null, photoId: null, mag: null, target: '', pts: [], obj: null, seg: null, wasDone: false });
   calV.setImage(null); mV.setImage(null);
-  go(1);
+  show('home');
   toast('모두 지웠어요. 새로 시작해요!');
 }
 function endSession(onCancel) {
   const n = S.results.length;
   const body = n
-    ? `<p>보정값과 측정 결과 <b>${n}개</b>가 모두 지워져요.</p><div class="note warn" style="margin-top:10px">${icon('alert', 'sm')}<span>지우기 전에 결과를 CSV 파일로 저장해 두세요.</span></div>`
-    : '<p>보정값이 모두 지워져요. 끝낼까요?</p>';
+    ? `<p>보정값과 측정 결과 <b>${n}개</b>가 모두 지워져요. 지우기 전에 결과를 CSV로 저장해 두세요.</p>`
+    : '<p>보정값이 모두 지워져요.</p>';
   const acts = [];
   if (n) acts.push({ label: 'CSV 저장', keep: true, fn: b => { downloadCSV(); b.textContent = '✓ CSV 저장했어요'; } });
-  acts.push({ label: '모두 지우기', cls: 'danger', fn: resetAll });
+  acts.push({ label: '모두 지우기', cls: 'primary', fn: resetAll });
   acts.push({ label: '취소', fn: onCancel });
-  modal('측정 끝내기', body, acts);
-}
-$('#endBtn').onclick = () => endSession();
-
-/* ========== 처음 화면 ========== */
-let stored = null, started = false;
-function renderHome() {
-  $('#howto').innerHTML || ($('#howto').innerHTML = howSvgs());
-  const box = $('#homeAction');
-  if (started) {
-    box.innerHTML = `<button class="btn primary lg" style="width:auto;padding:0 28px" id="hContinue">계속하기${icon('arrow')}</button>`;
-    $('#hContinue').onclick = () => go(M.img ? 3 : Object.keys(S.calib).length ? 2 : 1);
-    return;
-  }
-  if (stored) {
-    const mags = MAGS.filter(m => stored.calib && stored.calib[m]).map(m => `${m}배율`).join(', ') || '없음';
-    box.innerHTML = `<div class="resume"><div class="info"><b>저장된 값이 있어요</b><p class="num">${stored.savedAt ? esc(whenText(stored.savedAt)) + ' · ' : ''}보정 ${mags} · 측정 ${(stored.results || []).length}개</p><p>다른 사람이 쓰던 값이면 [새로 시작]을 누르세요.</p></div>
-      <div class="acts"><button class="btn" id="hNew">새로 시작</button><button class="btn primary" id="hResume">이어서 하기${icon('arrow')}</button></div></div>`;
-    $('#hResume').onclick = () => { S = stored; started = true; go(Object.keys(S.calib).length ? 2 : 1); };
-    $('#hNew').onclick = () => {
-      if ((stored.results || []).length) { S = stored; endSession(() => { S = freshState(); }); }
-      else { clearStored(); stored = null; started = true; go(1); }
-    };
-  } else {
-    box.innerHTML = `<button class="btn primary lg" style="width:auto;padding:0 28px" id="hStart">시작하기${icon('arrow')}</button>`;
-    $('#hStart').onclick = () => { started = true; go(1); };
-  }
+  modal('측정을 끝낼까요?', body, acts);
 }
 
 /* ========== 시작 ========== */
 storageOK = testStorage();
-if (!storageOK) $('#storageBanner').hidden = false;
 stored = readStored();
 if (stored && !(Object.keys(stored.calib || {}).length || (stored.results || []).length)) stored = null;
-go(0);
+document.querySelector('#s-home').classList.add('active');
+renderHome();
 </script>
 </body>
 </html>
