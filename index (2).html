@@ -1,0 +1,1587 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#F2F4F7">
+<title>현미경 길이 재기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  --bg:#F2F4F7; --surface:#FFFFFF; --surface-2:#F5F7FA; --ink:#0F1B2D; --ink-2:#334155; --muted:#64748B; --line:#E3E8EF;
+  --accent:#0E8F86; --accent-strong:#0A6F68; --accent-soft:#E1F3F1; --accent-ink:#FFFFFF;
+  --viewer:#0B1220; --glass:rgba(11,18,32,.76);
+  --len:#FFD233; --wid:#3FD8F2; --cal:#FF5CC8;
+  --len-ink:#0E8F86; --wid-ink:#0284C7;
+  --warn:#8A5300; --warn-soft:#FFF4DE; --danger:#D64545; --danger-soft:#FDECEC; --ok:#15803D; --ok-soft:#E7F6EC;
+  --r-lg:24px; --r-md:16px; --r-sm:12px;
+  --shadow:0 12px 32px rgba(15,27,45,.14),0 2px 6px rgba(15,27,45,.06);
+  --shadow-sm:0 2px 8px rgba(15,27,45,.08);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%}
+body{
+  font-family:"Pretendard Variable",Pretendard,system-ui,-apple-system,"Noto Sans KR","Apple SD Gothic Neo",sans-serif;
+  background:var(--bg);color:var(--ink);font-size:17px;line-height:1.5;letter-spacing:-.01em;
+  display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden;
+  -webkit-tap-highlight-color:transparent;overscroll-behavior:none;
+}
+button{font:inherit;color:inherit;cursor:pointer}
+h1,h2,h3,p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+.ic{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ic.sm{width:18px;height:18px}
+.ic.xl{width:44px;height:44px;stroke-width:1.6}
+
+/* ---------- 상단 바 ---------- */
+.appbar{display:flex;align-items:center;gap:12px;height:64px;padding:0 14px;background:var(--surface);border-bottom:1px solid var(--line);flex:none}
+.brand{display:flex;align-items:center;gap:10px;border:0;background:none;padding:6px 8px;border-radius:12px;font-weight:800;font-size:18px;white-space:nowrap}
+.logo{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:var(--accent);color:#fff}
+.logo .ic{width:20px;height:20px}
+.progress{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-width:0}
+.progress button{display:flex;align-items:center;gap:8px;border:0;background:none;padding:6px 10px;border-radius:999px;font-weight:700;color:var(--muted);font-size:16px;min-height:44px}
+.progress button:disabled{cursor:default;opacity:.55}
+.progress .dot{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;border:2px solid var(--line);background:var(--surface);font-size:14px;font-weight:800;color:var(--muted)}
+.progress .bar{width:36px;height:2px;border-radius:2px;background:var(--line)}
+.progress button.done .dot{background:var(--accent);border-color:var(--accent);color:#fff}
+.progress button.active{color:var(--ink);background:var(--accent-soft)}
+.progress button.active .dot{border-color:var(--accent);color:var(--accent);background:#fff}
+.progress .bar.done{background:var(--accent)}
+.textbtn{display:flex;align-items:center;gap:6px;border:0;background:none;padding:8px 12px;border-radius:12px;font-weight:700;font-size:16px;min-height:44px;color:var(--ink-2)}
+.textbtn.danger{color:var(--danger)}
+.textbtn:hover{background:var(--surface-2)}
+.banner{padding:8px 16px;font-size:15px;font-weight:600;background:var(--warn-soft);color:var(--warn);flex:none}
+
+main{flex:1;min-height:0;position:relative}
+.step{display:none;height:100%}
+.step.active{display:block}
+.scroll{overflow:auto}
+
+/* ---------- 공통 요소 ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:var(--r-sm);min-height:52px;padding:8px 16px;font-size:17px;font-weight:700;width:100%;transition:transform .08s,background .15s,border-color .15s}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:not(:disabled):hover{background:var(--accent-strong)}
+.btn.tonal{background:var(--accent-soft);border-color:transparent;color:var(--accent-strong)}
+.btn.danger{background:var(--danger);border-color:var(--danger);color:#fff}
+.btn.ghost{background:transparent;border-color:transparent}
+.btn.lg{min-height:58px;font-size:18px;border-radius:var(--r-md)}
+.btn.sm{min-height:40px;font-size:15px;width:auto;padding:6px 12px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:flex;gap:4px;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:4px}
+.seg button{flex:1;border:0;background:transparent;border-radius:10px;min-height:48px;padding:6px 8px;font-weight:700;font-size:16px;color:var(--ink-2);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.2}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm)}
+.seg button:disabled{opacity:.4;cursor:not-allowed}
+.seg .tag{font-size:12px;font-weight:600;color:var(--muted);margin-top:2px}
+.seg .tag.ok{color:var(--ok)}
+.label{font-size:14px;font-weight:700;color:var(--muted);letter-spacing:0}
+.note{display:flex;gap:10px;align-items:flex-start;background:var(--surface-2);border-radius:var(--r-sm);padding:12px 14px;font-size:15px;color:var(--ink-2)}
+.note .ic{margin-top:1px}
+.note.warn{background:var(--warn-soft);color:var(--warn);font-weight:600}
+.note.ok{background:var(--ok-soft);color:var(--ok);font-weight:600}
+input[type=text],input[type=number]{font:inherit;font-size:18px;padding:10px 14px;border:1.5px solid var(--line);border-radius:var(--r-sm);min-height:52px;width:100%;color:var(--ink);background:var(--surface);outline:none;transition:border-color .15s,box-shadow .15s}
+input[type=text]:focus,input[type=number]:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+input[type=range]{width:100%;height:36px;accent-color:var(--accent)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-size:15px;font-weight:600;min-height:40px;color:var(--ink-2)}
+.chips button.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-strong)}
+.instr{font-size:18px;font-weight:800;line-height:1.4}
+.instr .sub{display:block;font-size:14px;font-weight:500;color:var(--muted);margin-top:4px;line-height:1.5}
+.tile{display:flex;flex-direction:column;gap:2px;background:var(--surface-2);border-radius:var(--r-md);padding:12px 14px}
+.tile .k{font-size:13px;font-weight:700;color:var(--muted)}
+.tile .v{font-size:26px;font-weight:800;line-height:1.2}
+.tile .v small{font-size:15px;font-weight:600;color:var(--muted);margin-left:4px}
+
+/* ---------- 홈 ---------- */
+.home{max-width:1040px;margin:0 auto;padding:40px 24px 48px;display:flex;flex-direction:column;gap:32px}
+.hero{display:flex;flex-direction:column;gap:14px;max-width:640px}
+.eyebrow{display:inline-flex;align-self:flex-start;gap:6px;align-items:center;font-size:14px;font-weight:700;color:var(--accent-strong);background:var(--accent-soft);padding:6px 12px;border-radius:999px}
+.hero h1{font-size:40px;line-height:1.2;letter-spacing:-.03em;font-weight:800}
+.hero p{font-size:18px;color:var(--ink-2)}
+.resume{display:flex;align-items:center;gap:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px 20px;box-shadow:var(--shadow-sm);flex-wrap:wrap}
+.resume .info{flex:1;min-width:220px}
+.resume .info b{font-size:18px}
+.resume .info p{font-size:15px;color:var(--muted);margin-top:2px}
+.resume .acts{display:flex;gap:10px}
+.resume .acts .btn{width:auto}
+.howto{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.how{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column}
+.how svg.illus{display:block;width:100%;height:auto;background:var(--viewer)}
+.how .txt{padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px}
+.how .n{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-size:14px;font-weight:800}
+.how h3{font-size:19px;display:flex;align-items:center;gap:8px}
+.how p{font-size:15px;color:var(--muted)}
+
+/* ---------- 작업 화면 (보정, 측정) ---------- */
+.stage{position:relative;height:100%;background:var(--viewer);overflow:hidden}
+.viewer{position:absolute;inset:0;touch-action:none;user-select:none;-webkit-user-select:none}
+.viewer canvas.main{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.viewer canvas.loupe{position:absolute;width:140px;height:140px;border-radius:50%;border:3px solid #fff;box-shadow:0 8px 24px rgba(0,0,0,.5);pointer-events:none;display:none;z-index:3}
+.viewer .empty{position:absolute;inset:0 410px 0 90px;display:grid;place-items:center;padding:24px;color:#CBD5E1;text-align:center}
+.empty-in{display:flex;flex-direction:column;align-items:center;gap:14px;max-width:420px}
+.empty-in p{font-size:19px;font-weight:700;color:#E2E8F0}
+.empty-in .row2{width:100%}
+.empty-in .btn:not(.primary){background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);color:#fff}
+
+.rail{position:absolute;left:14px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:4px;padding:6px;background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08);border-radius:20px;z-index:2}
+.rail button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:62px;height:60px;border:0;border-radius:14px;background:transparent;color:#CBD5E1;font-size:11px;font-weight:700;transition:background .15s,color .15s}
+.rail button .ic{width:24px;height:24px}
+.rail button:hover{background:rgba(255,255,255,.08)}
+.rail button.on{background:var(--accent);color:#fff}
+.rail .sep{height:1px;background:rgba(255,255,255,.14);margin:4px 8px}
+
+.fchip{position:absolute;top:14px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:8px 10px 8px 16px;background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08);border-radius:999px;color:#fff;font-size:16px;font-weight:700;z-index:2;max-width:calc(100% - 28px);white-space:nowrap;overflow:hidden}
+.fchip .pill{display:inline-flex;align-items:baseline;gap:6px;padding:4px 12px;border-radius:999px;background:rgba(255,255,255,.08)}
+.fchip .pill i{font-style:normal;font-size:13px;font-weight:800;color:#0B1220;padding:1px 8px;border-radius:999px}
+.fchip .pill b{font-size:20px;font-weight:800}
+.fchip .pill small{font-size:13px;color:#94A3B8;font-weight:600}
+.fchip .msg{padding-right:8px;overflow:hidden;text-overflow:ellipsis}
+
+.sheet{position:absolute;top:14px;right:14px;bottom:14px;width:384px;background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow);display:flex;flex-direction:column;z-index:4;transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.sheet-head{display:flex;align-items:center;gap:10px;padding:16px 14px 10px 20px;flex:none}
+.sheet-head .grab{display:none}
+.sheet-head .ttl{flex:1;min-width:0}
+.sheet-head h2{font-size:20px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sheet-head .sub{font-size:14px;color:var(--muted);font-weight:600}
+.iconbtn{display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:12px;background:var(--surface-2);color:var(--ink-2);flex:none}
+.sheet-body{flex:1;min-height:0;overflow:auto;padding:6px 20px 16px;display:flex;flex-direction:column;gap:16px}
+.sheet-foot{flex:none;padding:12px 20px 18px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.sheet-open{position:absolute;top:14px;right:14px;z-index:3;display:none;align-items:center;gap:8px;border:0;background:var(--surface);color:var(--ink);font-weight:700;padding:10px 16px;border-radius:999px;box-shadow:var(--shadow);min-height:48px}
+.stage.collapsed .sheet{transform:translateX(calc(100% + 24px))}
+.stage.collapsed .sheet-open{display:flex}
+.stage.collapsed .viewer .empty{right:0}
+.group{display:flex;flex-direction:column;gap:8px}
+.divider{height:1px;background:var(--line)}
+
+.guide{display:block;width:100%;height:auto;border-radius:var(--r-md);background:var(--viewer)}
+.savedcal{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid var(--line);border-radius:var(--r-md)}
+.savedcal .badge{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--surface-2);font-weight:800;font-size:15px;color:var(--muted);flex:none}
+.savedcal.ok{border-color:#BFE3DF;background:#F4FBFA}
+.savedcal.ok .badge{background:var(--accent);color:#fff}
+.savedcal .t{flex:1;font-size:15px;line-height:1.35}
+.savedcal .t b{font-size:17px}
+.savedcal .t span{color:var(--muted);font-size:13px}
+.ticks{display:flex;align-items:center;gap:10px}
+.ticks input{width:100px;text-align:center;font-weight:800}
+
+/* 측정 시트 탭 */
+.tabs{display:flex;gap:4px;margin:0 20px 6px;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:4px;flex:none}
+.tabs button{flex:1;border:0;background:transparent;border-radius:10px;min-height:44px;font-weight:700;font-size:16px;color:var(--ink-2);display:flex;align-items:center;justify-content:center;gap:6px}
+.tabs button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm)}
+.tabs .cnt{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 6px;border-radius:999px;background:var(--accent);color:#fff;font-size:13px;font-weight:800}
+.tabs .cnt.bump{animation:bump .5s ease}
+.tabpane{display:flex;flex-direction:column;gap:16px}
+.mini{display:flex;align-items:center;gap:10px;background:var(--accent-soft);color:var(--accent-strong);border-radius:var(--r-md);padding:10px 12px 10px 14px;font-size:15px;font-weight:600}
+.mini .t{flex:1}
+.mini b{font-weight:800}
+.mini button{border:0;background:#fff;border-radius:10px;padding:6px 10px;font-size:14px;font-weight:700;color:var(--accent-strong);min-height:36px}
+
+/* 결과 */
+.sum{border:1.5px solid var(--line);border-radius:var(--r-md);padding:14px;display:flex;flex-direction:column;gap:10px}
+.sum-head{display:flex;align-items:center;gap:8px}
+.sum-head b{font-size:18px;flex:1}
+.pill-n{font-size:13px;font-weight:800;padding:3px 10px;border-radius:999px;background:var(--surface-2);color:var(--ink-2)}
+.metric{display:flex;flex-direction:column;gap:2px}
+.metric .k{font-size:13px;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:6px}
+.metric .k i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.metric .v{font-size:24px;font-weight:800;line-height:1.2}
+.metric .v small{font-size:14px;color:var(--muted);font-weight:600;margin-left:4px}
+.plot{display:block;width:100%;height:auto}
+.rlist{display:flex;flex-direction:column;gap:8px}
+.ritem{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 12px;border-radius:var(--r-sm);background:var(--surface-2)}
+.ritem .no{display:grid;place-items:center;min-width:34px;height:34px;padding:0 6px;border-radius:10px;background:var(--surface);font-weight:800;font-size:15px;box-shadow:var(--shadow-sm)}
+.ritem .t{flex:1;min-width:0;line-height:1.3}
+.ritem .t b{font-size:16px}
+.ritem .t span{display:block;font-size:13px;color:var(--muted)}
+.ritem .vals{text-align:right;line-height:1.3;font-weight:800;font-size:16px}
+.ritem .vals span{display:block;font-size:13px;color:var(--muted);font-weight:600}
+.ritem .del{display:grid;place-items:center;width:40px;height:40px;border:0;border-radius:10px;background:transparent;color:var(--muted)}
+.ritem .del:hover{background:var(--danger-soft);color:var(--danger)}
+.ritem.enter{animation:enter .45s cubic-bezier(.2,.8,.2,1)}
+.emptyres{text-align:center;color:var(--muted);font-size:15px;padding:24px 8px}
+
+/* ---------- 2단계 ---------- */
+.center{min-height:100%;padding:28px 20px;display:flex;justify-content:center;align-items:flex-start}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px;width:100%;max-width:640px;display:flex;flex-direction:column;gap:22px;box-shadow:var(--shadow-sm)}
+.card h2{font-size:24px;font-weight:800}
+.card .lead{color:var(--muted);font-size:15px;margin-top:4px}
+.phototile{position:relative;border-radius:var(--r-md);background:var(--viewer);aspect-ratio:4/3;overflow:hidden;display:grid;place-items:center}
+.phototile img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.phototile .size{position:absolute;left:12px;bottom:12px;background:var(--glass);color:#fff;font-size:13px;font-weight:700;padding:4px 10px;border-radius:999px}
+
+/* ---------- 모달, 토스트 ---------- */
+.modal{position:fixed;inset:0;background:rgba(11,18,32,.5);display:grid;place-items:center;z-index:50;padding:16px;animation:fade .2s}
+.modal-box{background:var(--surface);border-radius:var(--r-lg);padding:24px;max-width:480px;width:100%;display:flex;flex-direction:column;gap:14px;box-shadow:var(--shadow);animation:pop .25s cubic-bezier(.2,.8,.2,1)}
+.modal-box h3{font-size:21px;font-weight:800}
+.modal-box p{color:var(--ink-2)}
+.modal-actions{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;background:var(--ink);color:#fff;padding:14px 20px;border-radius:16px;font-size:16px;font-weight:600;z-index:60;max-width:calc(100% - 32px);box-shadow:var(--shadow);animation:toast .3s cubic-bezier(.2,.8,.2,1)}
+.toast .ic{color:#5EEAD4}
+
+@keyframes enter{from{opacity:0;transform:translateY(-10px) scale(.97);background:var(--accent-soft)}to{opacity:1;transform:none}}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
+@keyframes toast{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- 세로 화면 ---------- */
+@media (max-width:900px),(orientation:portrait){
+  .appbar{height:auto;min-height:60px;flex-wrap:wrap;padding:8px 10px}
+  .progress .lbl{display:none}
+  .progress button.active .lbl{display:inline}
+  .progress .bar{width:20px}
+  .home{padding:28px 18px 40px}
+  .hero h1{font-size:32px}
+  .howto{grid-template-columns:1fr}
+  .how{flex-direction:row}
+  .how svg.illus{width:42%;min-width:150px}
+  .rail{top:14px;left:14px;transform:none;flex-direction:row}
+  .rail button{width:54px;height:54px}
+  .rail .sep{width:1px;height:auto;margin:8px 4px}
+  .fchip{top:84px}
+  .viewer .empty{inset:76px 0 48% 0}
+  .stage.collapsed .viewer .empty{bottom:76px}
+  .sheet{top:auto;left:0;right:0;bottom:0;width:auto;height:48%;border-radius:var(--r-lg) var(--r-lg) 0 0}
+  .sheet-head{padding-top:8px;flex-wrap:wrap}
+  .sheet-head .grab{display:block;width:100%;height:14px;position:relative}
+  .sheet-head .grab::after{content:"";position:absolute;left:50%;top:4px;width:44px;height:5px;border-radius:3px;background:var(--line);transform:translateX(-50%)}
+  .stage.collapsed .sheet{transform:translateY(calc(100% - 76px))}
+  .stage.collapsed .sheet-open{display:none}
+  .sheet-head .collapse-ic{transform:rotate(90deg)}
+  .stage.collapsed .sheet-head .collapse-ic{transform:rotate(-90deg)}
+}
+@media (max-width:560px){
+  .brand .name{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- 아이콘 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-microscope" viewBox="0 0 24 24"><path d="M6 18h8M3 22h18M14 22a7 7 0 1 0 0-14h-1M9 14h2M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2ZM12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></symbol>
+  <symbol id="i-two" viewBox="0 0 24 24"><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="5" r="2.5"/><path d="M7 17 17 7"/></symbol>
+  <symbol id="i-four" viewBox="0 0 24 24"><path d="M6.5 17.5l11-11M9 9l6 6"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="7.5" cy="7.5" r="2"/><circle cx="16.5" cy="16.5" r="2"/></symbol>
+  <symbol id="i-object" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="9.5" ry="6" stroke-dasharray="2.6 2.6"/><path d="M12 9.5v5M9.5 12h5"/></symbol>
+  <symbol id="i-zin" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7.5"/><path d="m21 21-4.6-4.6M11 8v6M8 11h6"/></symbol>
+  <symbol id="i-zout" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7.5"/><path d="m21 21-4.6-4.6M8 11h6"/></symbol>
+  <symbol id="i-fit" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></symbol>
+  <symbol id="i-exit" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-panel" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+  <symbol id="i-ruler" viewBox="0 0 24 24"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2M11.5 9.5l2-2M8.5 6.5l2-2M17.5 15.5l2-2"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
+</svg>
+
+<header class="appbar">
+  <button class="brand" id="homeBtn" aria-label="처음 화면"><span class="logo"><svg class="ic"><use href="#i-microscope"/></svg></span><span class="name">현미경 길이 재기</span></button>
+  <nav class="progress" id="progress">
+    <button data-step="1"><span class="dot">1</span><span class="lbl">보정</span></button>
+    <span class="bar" data-bar="1"></span>
+    <button data-step="2"><span class="dot">2</span><span class="lbl">사진 넣기</span></button>
+    <span class="bar" data-bar="2"></span>
+    <button data-step="3"><span class="dot">3</span><span class="lbl">측정</span></button>
+  </nav>
+  <button class="textbtn danger" id="endBtn"><svg class="ic sm"><use href="#i-exit"/></svg><span>측정 끝내기</span></button>
+</header>
+<div id="storageBanner" class="banner" hidden>이 화면에서는 값이 저장되지 않아요. 앱이 닫히면 보정값과 결과가 사라져요.</div>
+
+<main>
+  <!-- 처음 화면 -->
+  <section id="step0" class="step scroll">
+    <div class="home">
+      <div class="hero">
+        <span class="eyebrow"><svg class="ic sm"><use href="#i-microscope"/></svg>생명 탐구 · 세포 크기 재기</span>
+        <h1>현미경 사진으로<br>진짜 크기를 재 봐요</h1>
+        <p>대물 마이크로미터로 보정하고 사진을 터치하면, 실제 길이를 μm로 알려 줘요.</p>
+        <div id="homeAction"></div>
+      </div>
+      <div class="howto" id="howto"></div>
+    </div>
+  </section>
+
+  <!-- 1단계: 보정 -->
+  <section id="step1" class="step">
+    <div class="stage" id="stage1">
+      <div class="viewer" id="calibViewer">
+        <canvas class="main"></canvas>
+        <canvas class="loupe"></canvas>
+        <div class="empty"><div class="empty-in">
+          <svg class="ic xl"><use href="#i-image"/></svg>
+          <p id="calEmptyT"></p>
+          <div class="row2">
+            <button class="btn primary" data-pick="cam" data-for="calib"><svg class="ic"><use href="#i-camera"/></svg>사진 찍기</button>
+            <button class="btn" data-pick="gal" data-for="calib"><svg class="ic"><use href="#i-image"/></svg>갤러리에서 고르기</button>
+          </div>
+        </div></div>
+      </div>
+      <div class="rail">
+        <button data-zoom="in"><svg class="ic"><use href="#i-zin"/></svg>확대</button>
+        <button data-zoom="out"><svg class="ic"><use href="#i-zout"/></svg>축소</button>
+        <button data-zoom="fit"><svg class="ic"><use href="#i-fit"/></svg>전체</button>
+      </div>
+      <div class="fchip" id="calChip" hidden></div>
+      <button class="sheet-open" data-sheet-toggle><svg class="ic" style="transform:rotate(180deg)"><use href="#i-panel"/></svg>보정 패널</button>
+      <aside class="sheet">
+        <div class="sheet-head">
+          <div class="grab" data-sheet-toggle></div>
+          <div class="ttl"><h2>1단계 · 보정</h2><div class="sub">1mm가 사진에서 몇 픽셀인지 알아내요</div></div>
+          <button class="iconbtn" data-sheet-toggle aria-label="패널 접기"><svg class="ic collapse-ic"><use href="#i-panel"/></svg></button>
+        </div>
+        <div class="sheet-body">
+          <div class="seg" id="calMags"></div>
+          <div class="group">
+            <svg class="guide" id="calGuide" viewBox="0 0 320 120"></svg>
+            <div class="instr" id="calInstr"></div>
+          </div>
+          <div class="group">
+            <div class="label">두 점 사이 눈금 수</div>
+            <div class="ticks"><input id="ticks" type="number" inputmode="decimal" min="1" step="1" value="100"><span class="muted" id="ticksInfo"></span></div>
+          </div>
+          <div class="row2">
+            <div class="tile"><span class="k">1mm는</span><span class="v num" id="calNowV">—</span></div>
+            <div class="tile"><span class="k">1픽셀은</span><span class="v num" id="calNowP">—</span></div>
+          </div>
+          <div class="row2">
+            <button id="calReset" class="btn"><svg class="ic"><use href="#i-undo"/></svg>다시 하기</button>
+            <button id="calSave" class="btn primary"><svg class="ic"><use href="#i-check"/></svg>보정 저장</button>
+          </div>
+          <div class="divider"></div>
+          <div class="group">
+            <div class="label">저장된 보정값</div>
+            <div class="group" id="calSaved"></div>
+            <div id="calRatio"></div>
+          </div>
+          <div class="row2" id="calPhotoBtns">
+            <button class="btn" data-pick="cam" data-for="calib"><svg class="ic"><use href="#i-camera"/></svg>다시 찍기</button>
+            <button class="btn" data-pick="gal" data-for="calib"><svg class="ic"><use href="#i-image"/></svg>갤러리</button>
+          </div>
+          <div class="note"><svg class="ic sm"><use href="#i-alert"/></svg><span>측정할 사진은 마이크로미터 사진과 <b>같은 태블릿, 같은 방법</b>으로 찍어야 해요. 사진을 자르거나 메신저로 보내면 안 돼요.</span></div>
+        </div>
+        <div class="sheet-foot">
+          <button id="calNext" class="btn primary lg">다음: 사진 넣기<svg class="ic"><use href="#i-arrow"/></svg></button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- 2단계: 사진 넣기 -->
+  <section id="step2" class="step scroll">
+    <div class="center">
+      <div class="card">
+        <div><h2>측정할 사진 넣기</h2><p class="lead">현미경으로 찍은 사진을 넣고, 몇 배율인지와 무엇을 재는지 골라요.</p></div>
+        <div id="reloadHint" class="note warn" hidden><svg class="ic sm"><use href="#i-alert"/></svg><span>앱이 새로 열려서 사진이 사라졌어요. 사진을 다시 넣어 주세요. 보정값과 측정 결과는 그대로 남아 있어요.</span></div>
+        <div class="group">
+          <div class="label">① 사진</div>
+          <div class="phototile" id="p2Tile">
+            <div class="empty-in" id="p2Empty"><svg class="ic xl" style="color:#94A3B8"><use href="#i-image"/></svg></div>
+            <img id="p2Img" alt="넣은 사진" hidden>
+            <span class="size num" id="p2Size" hidden></span>
+          </div>
+          <div class="row2">
+            <button class="btn primary" data-pick="cam" data-for="photo"><svg class="ic"><use href="#i-camera"/></svg>사진 찍기</button>
+            <button class="btn" data-pick="gal" data-for="photo"><svg class="ic"><use href="#i-image"/></svg>갤러리에서 고르기</button>
+          </div>
+        </div>
+        <div class="group">
+          <div class="label">② 몇 배율로 찍었나요?</div>
+          <div id="p2Mags" class="seg"></div>
+        </div>
+        <div class="group">
+          <div class="label">③ 무엇을 재나요?</div>
+          <input id="p2Target" type="text" placeholder="예: 양파 표피세포" maxlength="20" autocomplete="off">
+          <div class="chips" id="p2Chips"></div>
+        </div>
+        <div id="p2Warn" class="note warn" hidden></div>
+        <button id="p2Start" class="btn primary lg">측정 시작<svg class="ic"><use href="#i-arrow"/></svg></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3단계: 측정 -->
+  <section id="step3" class="step">
+    <div class="stage" id="stage3">
+      <div class="viewer" id="measViewer">
+        <canvas class="main"></canvas>
+        <canvas class="loupe"></canvas>
+        <div class="empty"><div class="empty-in"><p>측정할 사진을 넣어 주세요</p></div></div>
+      </div>
+      <div class="rail" id="mRail">
+        <button data-mode="two"><svg class="ic"><use href="#i-two"/></svg>두 점</button>
+        <button data-mode="four"><svg class="ic"><use href="#i-four"/></svg>네 점</button>
+        <button data-mode="object"><svg class="ic"><use href="#i-object"/></svg>자동</button>
+        <div class="sep"></div>
+        <button data-zoom="in"><svg class="ic"><use href="#i-zin"/></svg>확대</button>
+        <button data-zoom="out"><svg class="ic"><use href="#i-zout"/></svg>축소</button>
+        <button data-zoom="fit"><svg class="ic"><use href="#i-fit"/></svg>전체</button>
+      </div>
+      <div class="fchip" id="mChip"></div>
+      <button class="sheet-open" data-sheet-toggle><svg class="ic" style="transform:rotate(180deg)"><use href="#i-panel"/></svg>측정 패널</button>
+      <aside class="sheet">
+        <div class="sheet-head">
+          <div class="grab" data-sheet-toggle></div>
+          <div class="ttl"><h2 id="mInfoT"></h2><div class="sub num" id="mInfoS"></div></div>
+          <button class="btn sm tonal" id="mChange">사진 바꾸기</button>
+          <button class="iconbtn" data-sheet-toggle aria-label="패널 접기"><svg class="ic collapse-ic"><use href="#i-panel"/></svg></button>
+        </div>
+        <div class="tabs" id="mTabs">
+          <button data-tab="measure" class="on"><svg class="ic sm"><use href="#i-ruler"/></svg>측정</button>
+          <button data-tab="results"><svg class="ic sm"><use href="#i-list"/></svg>결과 <span class="cnt num" id="resCnt">0</span></button>
+        </div>
+        <div class="sheet-body">
+          <div class="tabpane" id="paneMeasure">
+            <div class="instr" id="mInstr"></div>
+            <div class="group" id="sensRow" hidden>
+              <div class="label">민감도 <span class="num" id="sensVal"></span></div>
+              <input id="sens" type="range" min="1" max="100" value="50">
+              <div class="muted" style="font-size:13px">테두리가 개체보다 너무 크면 낮추고, 너무 작으면 높여요.</div>
+            </div>
+            <div class="row2">
+              <div class="tile"><span class="k" style="color:var(--len-ink)">● 길이</span><span class="v num" id="roLen">—</span></div>
+              <div class="tile" id="roWidTile"><span class="k" style="color:var(--wid-ink)">● 폭</span><span class="v num" id="roWid">—</span></div>
+            </div>
+            <div id="mMini"></div>
+            <button id="mSaveImg" class="btn"><svg class="ic"><use href="#i-download"/></svg>측정선 그린 사진 저장</button>
+          </div>
+          <div class="tabpane" id="paneResults" hidden>
+            <div id="sumWrap" class="group"></div>
+            <div class="label" id="listLbl">전체 기록</div>
+            <div id="resWrap" class="rlist"></div>
+          </div>
+        </div>
+        <div class="sheet-foot" id="footMeasure">
+          <div class="row2">
+            <button id="mReset" class="btn"><svg class="ic"><use href="#i-undo"/></svg>다시 하기</button>
+            <button id="mAdd" class="btn primary"><svg class="ic"><use href="#i-plus"/></svg>결과에 추가</button>
+          </div>
+        </div>
+        <div class="sheet-foot" id="footResults" hidden>
+          <button id="csvBtn" class="btn"><svg class="ic"><use href="#i-download"/></svg>CSV로 저장 (엑셀)</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<div id="modal" class="modal" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true">
+    <h3 id="mTitle"></h3>
+    <div id="mBody"></div>
+    <div id="mActions" class="modal-actions"></div>
+  </div>
+</div>
+<div id="toast" class="toast" hidden></div>
+<input type="file" id="fileCam" accept="image/*" capture="environment" hidden>
+<input type="file" id="fileGal" accept="image/*" hidden>
+
+<script>
+'use strict';
+/* ========== 기본 도구 ========== */
+const $ = s => document.querySelector(s);
+const KEY = 'micro-measure-v1';
+const MAGS = [1, 4];
+const COL = { len: '#FFD233', wid: '#3FD8F2', cal: '#FF5CC8' };
+const MODE_NAME = { two: '두 점', four: '네 점', object: '개체(자동)' };
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const r1 = p => ({ x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10 });
+const icon = (id, cls = '') => `<svg class="ic ${cls}"><use href="#i-${id}"/></svg>`;
+function fmtMm(um) { const mm = um / 1000; return mm >= 0.1 ? mm.toFixed(2) : mm.toFixed(3); }
+function fmtUm(um) { return `${Math.round(um)}μm (${fmtMm(um)}mm)`; }
+const umHtml = um => `${Math.round(um)}<small>μm</small>`;
+function pad2(n) { return String(n).padStart(2, '0'); }
+function ymd(d = new Date()) { return `${d.getFullYear()}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}`; }
+function whenText(t) {
+  const d = new Date(t), now = new Date();
+  const hm = `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  return d.toDateString() === now.toDateString() ? `오늘 ${hm}` : `${d.getMonth() + 1}월 ${d.getDate()}일 ${hm}`;
+}
+const isPortrait = () => matchMedia('(max-width:900px),(orientation:portrait)').matches;
+
+/* ========== 저장 ========== */
+function freshState() { return { calib: {}, results: [], seq: 0, photoSeq: 0, saveSeq: 0, target: '', lastMag: null, savedAt: null }; }
+let S = freshState();
+let storageOK = true;
+function testStorage() { try { localStorage.setItem('__mm_t', '1'); localStorage.removeItem('__mm_t'); return true; } catch (e) { return false; } }
+function persist() {
+  S.savedAt = Date.now();
+  if (!storageOK) return;
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { storageOK = false; $('#storageBanner').hidden = false; }
+}
+function readStored() {
+  if (!storageOK) return null;
+  try { const t = localStorage.getItem(KEY); if (!t) return null; const o = JSON.parse(t); return o && typeof o === 'object' ? Object.assign(freshState(), o) : null; }
+  catch (e) { return null; }
+}
+function clearStored() { try { localStorage.removeItem(KEY); } catch (e) {} }
+
+/* ========== 모달, 토스트 ========== */
+function modal(title, bodyHtml, actions) {
+  $('#mTitle').textContent = title;
+  $('#mBody').innerHTML = bodyHtml;
+  const box = $('#mActions'); box.innerHTML = '';
+  actions.forEach(a => {
+    const b = document.createElement('button');
+    b.className = 'btn ' + (a.cls || ''); b.textContent = a.label;
+    b.onclick = () => { if (!a.keep) closeModal(); if (a.fn) a.fn(b); };
+    box.appendChild(b);
+  });
+  $('#modal').hidden = false;
+}
+function closeModal() { $('#modal').hidden = true; }
+let toastTimer = 0;
+function toast(msg, ms = 2600) {
+  const t = $('#toast');
+  t.innerHTML = `${icon('check')}<span>${esc(msg)}</span>`;
+  t.hidden = true; void t.offsetWidth; t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, ms);
+}
+
+/* ========== 사진 뷰어 (확대, 이동, 점 찍기, 돋보기) ========== */
+class Viewer {
+  constructor(root, o) {
+    Object.assign(this, o);
+    this.root = root;
+    this.cv = root.querySelector('canvas.main'); this.ctx = this.cv.getContext('2d');
+    this.lp = root.querySelector('canvas.loupe'); this.lctx = this.lp.getContext('2d');
+    this.emptyEl = root.querySelector('.empty');
+    this.img = null; this.scale = 1; this.tx = 0; this.ty = 0; this.fitScale = 1;
+    this.cw = 0; this.ch = 0; this.dpr = 1; this.needFit = false;
+    this.ptrs = new Map(); this.g = null; this.aim = null; this._raf = 0;
+    new ResizeObserver(() => this.resize()).observe(root);
+    const c = this.cv;
+    c.addEventListener('pointerdown', e => this.down(e));
+    c.addEventListener('pointermove', e => this.move(e));
+    c.addEventListener('pointerup', e => this.up(e, false));
+    c.addEventListener('pointercancel', e => this.up(e, true));
+    c.addEventListener('contextmenu', e => e.preventDefault());
+    c.addEventListener('wheel', e => {
+      if (!this.img) return; e.preventDefault();
+      const p = this.local(e); this.zoomAt(p.x, p.y, Math.exp(-e.deltaY * 0.0015));
+    }, { passive: false });
+  }
+  zoomBtn(z) {
+    if (!this.img) return;
+    if (z === 'fit') { this.fit(); return; }
+    const ins = this.insets();
+    this.zoomAt(ins.l + (this.cw - ins.l - ins.r) / 2, ins.t + (this.ch - ins.t - ins.b) / 2, z === 'in' ? 1.6 : 1 / 1.6);
+  }
+  insets() { return this.getInsets ? this.getInsets() : { l: 0, r: 0, t: 0, b: 0 }; }
+  setImage(img) { this.img = img; this.aim = null; this.g = null; this.ptrs.clear(); if (this.cw > 0) this.fit(); else this.needFit = true; this.draw(); }
+  resize() {
+    const r = this.root.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    const dpr = window.devicePixelRatio || 1;
+    const changed = r.width !== this.cw || r.height !== this.ch;
+    this.cw = r.width; this.ch = r.height; this.dpr = dpr;
+    this.cv.width = Math.round(r.width * dpr); this.cv.height = Math.round(r.height * dpr);
+    if ((changed || this.needFit) && this.img) { this.needFit = false; this.fit(); } else this.render();
+  }
+  fit() {
+    if (!this.img || !this.cw) return;
+    const iw = this.img.naturalWidth, ih = this.img.naturalHeight, ins = this.insets();
+    const aw = Math.max(80, this.cw - ins.l - ins.r), ah = Math.max(80, this.ch - ins.t - ins.b);
+    const s = Math.min(aw / iw, ah / ih);
+    this.fitScale = s; this.scale = s;
+    this.tx = ins.l + (aw - iw * s) / 2; this.ty = ins.t + (ah - ih * s) / 2;
+    this.draw();
+  }
+  maxScale() { return Math.max(this.fitScale * 30, 8); }
+  zoomAt(sx, sy, f) {
+    const ns = clamp(this.scale * f, this.fitScale * 0.5, this.maxScale());
+    const ix = (sx - this.tx) / this.scale, iy = (sy - this.ty) / this.scale;
+    this.scale = ns; this.tx = sx - ix * ns; this.ty = sy - iy * ns; this.draw();
+  }
+  local(e) { const r = this.cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+  toS(p) { return { x: p.x * this.scale + this.tx, y: p.y * this.scale + this.ty }; }
+  toI(sx, sy) { return { x: (sx - this.tx) / this.scale, y: (sy - this.ty) / this.scale }; }
+  inside(p) { return this.img && p.x >= 0 && p.y >= 0 && p.x <= this.img.naturalWidth && p.y <= this.img.naturalHeight; }
+  clampI(p) { return { x: clamp(p.x, 0, this.img.naturalWidth), y: clamp(p.y, 0, this.img.naturalHeight) }; }
+
+  down(e) {
+    if (!this.img) return;
+    e.preventDefault();
+    if (e.isPrimary) this.ptrs.clear();
+    try { this.cv.setPointerCapture(e.pointerId); } catch (_) {}
+    const p = this.local(e); this.ptrs.set(e.pointerId, p);
+    if (this.ptrs.size === 1) {
+      const hs = this.getHandles ? this.getHandles() : [];
+      const rad = e.pointerType === 'mouse' ? 14 : 36;
+      let best = null, bd = rad;
+      hs.forEach(h => { const s = this.toS(h); const d = Math.hypot(s.x - p.x, s.y - p.y); if (d < bd) { bd = d; best = h; } });
+      if (best) { const s = this.toS(best); this.g = { t: 'drag', id: best.id, dx: s.x - p.x, dy: s.y - p.y, p0: { ...p }, moved: false }; this.aim = s; }
+      else { this.g = { t: 'aim' }; this.aim = { ...p }; }
+    } else if (this.ptrs.size === 2) {
+      const [a, b] = [...this.ptrs.values()];
+      if (this.g && this.g.t === 'drag' && this.g.moved && this.onEnd) this.onEnd();
+      this.g = { t: 'pinch', d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, c0: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }, s0: this.scale, tx0: this.tx, ty0: this.ty };
+      this.aim = null;
+    }
+    this.draw();
+  }
+  move(e) {
+    if (!this.ptrs.has(e.pointerId)) return;
+    e.preventDefault();
+    const p = this.local(e); this.ptrs.set(e.pointerId, p);
+    const g = this.g; if (!g) return;
+    if (g.t === 'pinch' && this.ptrs.size >= 2) {
+      const [a, b] = [...this.ptrs.values()];
+      const d = Math.hypot(a.x - b.x, a.y - b.y), c = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      const ns = clamp(g.s0 * d / g.d0, this.fitScale * 0.5, this.maxScale());
+      const ix = (g.c0.x - g.tx0) / g.s0, iy = (g.c0.y - g.ty0) / g.s0;
+      this.scale = ns; this.tx = c.x - ix * ns; this.ty = c.y - iy * ns;
+    } else if (g.t === 'drag') {
+      if (!g.moved && Math.hypot(p.x - g.p0.x, p.y - g.p0.y) < 6) return;
+      g.moved = true;
+      const ip = this.clampI(this.toI(p.x + g.dx, p.y + g.dy));
+      this.onDrag(g.id, ip); this.aim = this.toS(ip);
+    } else if (g.t === 'aim') {
+      this.aim = { ...p };
+    }
+    this.draw();
+  }
+  up(e, cancel) {
+    if (!this.ptrs.has(e.pointerId)) return;
+    const p = this.local(e); this.ptrs.delete(e.pointerId);
+    const g = this.g;
+    if (this.ptrs.size === 0) {
+      this.g = null; this.aim = null;
+      // 점 근처를 끌지 않고 톡 누르기만 했으면 새 점 찍기로 처리
+      const tap = g && !cancel && (g.t === 'aim' || (g.t === 'drag' && !g.moved));
+      if (tap) { const ip = this.toI(p.x, p.y); if (this.inside(ip)) this.onTap(ip); }
+      if (g && g.t === 'drag' && g.moved && this.onEnd) this.onEnd();
+    } else if (g && g.t === 'pinch') { this.g = { t: 'none' }; }
+    this.draw();
+  }
+
+  draw() { if (this._raf) return; this._raf = requestAnimationFrame(() => { this._raf = 0; this.render(); }); }
+  render() {
+    const c = this.ctx, dpr = this.dpr;
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    c.fillStyle = '#0B1220'; c.fillRect(0, 0, this.cw, this.ch);
+    this.emptyEl.hidden = !!this.img;
+    if (this.img) {
+      c.save(); c.translate(this.tx, this.ty); c.scale(this.scale, this.scale);
+      c.imageSmoothingEnabled = this.scale < 3;
+      c.drawImage(this.img, 0, 0);
+      if (this.drawImageSpace) this.drawImageSpace(c, this);
+      c.restore();
+      if (this.drawOverlay) this.drawOverlay(c, this);
+    }
+    this.renderLoupe();
+    if (this.needsAnim && this.needsAnim()) this.draw();
+  }
+  renderLoupe() {
+    const lp = this.lp;
+    if (!this.aim || !this.img) { lp.style.display = 'none'; return; }
+    const L = 140, dpr = this.dpr;
+    if (lp.width !== Math.round(L * dpr)) { lp.width = Math.round(L * dpr); lp.height = Math.round(L * dpr); }
+    let left = this.aim.x - L / 2, top = this.aim.y - L - 40;
+    if (top < 4) top = this.aim.y + 40;
+    left = clamp(left, 4, Math.max(4, this.cw - L - 4)); top = clamp(top, 4, Math.max(4, this.ch - L - 4));
+    lp.style.display = 'block'; lp.style.left = left + 'px'; lp.style.top = top + 'px';
+    const x = this.lctx; x.setTransform(dpr, 0, 0, dpr, 0, 0);
+    x.fillStyle = '#000'; x.fillRect(0, 0, L, L);
+    const k = 3, ip = this.toI(this.aim.x, this.aim.y), sc = this.scale * k, span = L / sc;
+    const iw = this.img.naturalWidth, ih = this.img.naturalHeight;
+    let sx = ip.x - span / 2, sy = ip.y - span / 2, sw = span, sh = span, dx = 0, dy = 0;
+    if (sx < 0) { dx = -sx * sc; sw += sx; sx = 0; }
+    if (sy < 0) { dy = -sy * sc; sh += sy; sy = 0; }
+    if (sx + sw > iw) sw = iw - sx;
+    if (sy + sh > ih) sh = ih - sy;
+    x.imageSmoothingEnabled = sc < 3;
+    if (sw > 0 && sh > 0) x.drawImage(this.img, sx, sy, sw, sh, dx, dy, sw * sc, sh * sc);
+    const m = L / 2;
+    x.lineCap = 'butt';
+    [['rgba(0,0,0,.85)', 4], ['#fff', 2]].forEach(([col, w]) => {
+      x.strokeStyle = col; x.lineWidth = w; x.beginPath();
+      x.moveTo(m, 6); x.lineTo(m, m - 9); x.moveTo(m, m + 9); x.lineTo(m, L - 6);
+      x.moveTo(6, m); x.lineTo(m - 9, m); x.moveTo(m + 9, m); x.lineTo(L - 6, m);
+      x.stroke();
+    });
+    x.strokeStyle = '#ff3b3b'; x.lineWidth = 2; x.beginPath(); x.arc(m, m, 4, 0, Math.PI * 2); x.stroke();
+  }
+}
+
+/* ========== 그리기 도구 (화면과 저장 사진 공통) ========== */
+function gLine(c, a, b, color, u) {
+  c.lineCap = 'round';
+  c.strokeStyle = 'rgba(255,255,255,.95)'; c.lineWidth = 6 * u;
+  c.beginPath(); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); c.stroke();
+  c.strokeStyle = color; c.lineWidth = 3 * u;
+  c.beginPath(); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); c.stroke();
+}
+function gDot(c, p, color, u, num) {
+  c.lineWidth = 5 * u; c.strokeStyle = '#fff';
+  c.beginPath(); c.arc(p.x, p.y, 9 * u, 0, Math.PI * 2); c.stroke();
+  c.lineWidth = 2.5 * u; c.strokeStyle = color;
+  c.beginPath(); c.arc(p.x, p.y, 9 * u, 0, Math.PI * 2); c.stroke();
+  c.fillStyle = color; c.beginPath(); c.arc(p.x, p.y, 1.8 * u, 0, Math.PI * 2); c.fill();
+  if (num != null) gLabel(c, String(num), { x: p.x + 16 * u, y: p.y - 16 * u }, '#fff', u, 0.85);
+}
+function gLabel(c, text, p, color, u, sizeK = 1) {
+  const fs = 16 * u * sizeK;
+  c.font = `800 ${fs}px system-ui, "Noto Sans KR", sans-serif`;
+  c.textBaseline = 'middle'; c.textAlign = 'center';
+  const w = c.measureText(text).width + fs * 0.9, h = fs * 1.55;
+  c.fillStyle = 'rgba(0,0,0,.75)';
+  roundRect(c, p.x - w / 2, p.y - h / 2, w, h, h / 2); c.fill();
+  c.fillStyle = color; c.fillText(text, p.x, p.y + fs * 0.04);
+}
+function roundRect(c, x, y, w, h, r) {
+  c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
+  c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
+}
+function labelPos(a, b, u, side = 1) {
+  const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, L = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+  let nx = -(b.y - a.y) / L, ny = (b.x - a.x) / L;
+  if (ny > 0) { nx = -nx; ny = -ny; }
+  return { x: mx + nx * 24 * u * side, y: my + ny * 24 * u * side };
+}
+/* 측정 하나 그리기. map: 사진 좌표 → 그릴 좌표
+   compact: 선을 가늘게, 값 대신 번호만 (저장 사진, 이전 측정 표시용) */
+function gLineThin(c, a, b, color, u) {
+  c.lineCap = 'round';
+  c.strokeStyle = 'rgba(0,0,0,.6)'; c.lineWidth = 3.2 * u;
+  c.beginPath(); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); c.stroke();
+  c.strokeStyle = color; c.lineWidth = 1.6 * u;
+  c.beginPath(); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); c.stroke();
+  // 양 끝 짧은 직각 표시
+  const L = Math.hypot(b.x - a.x, b.y - a.y) || 1, nx = -(b.y - a.y) / L * 5 * u, ny = (b.x - a.x) / L * 5 * u;
+  [a, b].forEach(p => {
+    c.strokeStyle = 'rgba(0,0,0,.6)'; c.lineWidth = 3.2 * u; c.beginPath(); c.moveTo(p.x - nx, p.y - ny); c.lineTo(p.x + nx, p.y + ny); c.stroke();
+    c.strokeStyle = color; c.lineWidth = 1.6 * u; c.beginPath(); c.moveTo(p.x - nx, p.y - ny); c.lineTo(p.x + nx, p.y + ny); c.stroke();
+  });
+}
+function tagPos(a, b, u) {
+  const L = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+  return { x: b.x + (b.x - a.x) / L * 18 * u, y: b.y + (b.y - a.y) / L * 18 * u };
+}
+function drawItem(c, it, map, u, prefix = '', compact = false) {
+  const g = it.geom;
+  const pairs = it.mode === 'object' ? [g.la.map(map), g.sa.map(map)]
+    : it.mode === 'four' ? [[map(g.pts[0]), map(g.pts[1])], [map(g.pts[2]), map(g.pts[3])]]
+    : [[map(g.pts[0]), map(g.pts[1])]];
+  if (it.mode === 'object') {
+    const R = g.rect.map(map);
+    c.setLineDash([6 * u, 5 * u]); c.lineWidth = (compact ? 1.2 : 2.5) * u; c.strokeStyle = 'rgba(255,255,255,.9)';
+    c.beginPath(); R.forEach((q, i) => i ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y)); c.closePath(); c.stroke();
+    c.setLineDash([]);
+  }
+  if (compact) {
+    pairs.forEach((pr, i) => gLineThin(c, pr[0], pr[1], i ? COL.wid : COL.len, u));
+    gLabel(c, prefix.trim(), tagPos(pairs[0][0], pairs[0][1], u), '#fff', u, 0.8);
+    return;
+  }
+  pairs.forEach((pr, i) => {
+    const col = i ? COL.wid : COL.len;
+    gLine(c, pr[0], pr[1], col, u);
+    if (it.mode !== 'object') { gDot(c, pr[0], col, u); gDot(c, pr[1], col, u); }
+  });
+  if (it.mode === 'two') gLabel(c, `${prefix}${Math.round(it.len)}μm`, labelPos(pairs[0][0], pairs[0][1], u), COL.len, u);
+  else {
+    gLabel(c, `${prefix}길이 ${Math.round(it.len)}μm`, labelPos(pairs[0][0], pairs[0][1], u), COL.len, u);
+    gLabel(c, `${prefix}폭 ${Math.round(it.wid)}μm`, labelPos(pairs[1][0], pairs[1][1], u, -1), COL.wid, u);
+  }
+}
+
+
+
+/* 점 찍을 때 톡 튀는 효과 */
+const pop = { at: 0, key: '' };
+function popK(key) {
+  if (pop.key !== key) return 1;
+  const t = (performance.now() - pop.at) / 260;
+  return t >= 1 ? 1 : 1 + 0.6 * Math.sin(Math.PI * t);
+}
+const popping = () => performance.now() - pop.at < 280;
+
+/* ========== 작업 화면 패널 (접기, 여백 계산) ========== */
+function stageInsets(stage) {
+  return () => {
+    const sr = stage.getBoundingClientRect();
+    const rail = stage.querySelector('.rail').getBoundingClientRect();
+    const chip = stage.querySelector('.fchip');
+    const sheet = stage.querySelector('.sheet').getBoundingClientRect();
+    const collapsed = stage.classList.contains('collapsed');
+    const ins = { l: 14, r: 14, t: 14, b: 14 };
+    if (isPortrait()) {
+      ins.t = rail.bottom - sr.top + 10;
+      if (chip && !chip.hidden) ins.t = Math.max(ins.t, chip.getBoundingClientRect().bottom - sr.top + 10);
+      ins.b = collapsed ? 90 : sr.bottom - sheet.top + 10;
+    } else {
+      ins.l = rail.right - sr.left + 12;
+      ins.t = 72;
+      ins.r = collapsed ? 14 : sr.right - sheet.left + 12;
+    }
+    return ins;
+  };
+}
+function wireStage(stage, viewer) {
+  stage.querySelectorAll('[data-sheet-toggle]').forEach(b => b.addEventListener('click', () => {
+    stage.classList.toggle('collapsed');
+    setTimeout(() => viewer.fit(), 320);
+  }));
+  stage.querySelectorAll('.rail [data-zoom]').forEach(b => b.addEventListener('click', () => viewer.zoomBtn(b.dataset.zoom)));
+}
+
+/* ========== 그림 (처음 화면, 보정 안내) ========== */
+function cellShape(cx, cy, rot, fill = '#8FB07A') {
+  return `<g transform="translate(${cx} ${cy}) rotate(${rot})"><ellipse rx="34" ry="12" fill="${fill}" stroke="#5E7F4E" stroke-width="2"/><circle cx="-8" cy="0" r="4" fill="#6B8F58"/><circle cx="12" cy="-2" r="2.5" fill="#B9D3A6"/><circle cx="2" cy="4" r="2" fill="#B9D3A6"/></g>`;
+}
+function micrometerSvg(w, h, state) {
+  // state: 0 시작점 기다림, 1 끝점 기다림, 2 완료, -1 사진 없음
+  const cx = w / 2, cy = h / 2, R = h * 0.42, x0 = cx - w * 0.3, x1 = cx + w * 0.3, n = 20, y = cy + 6;
+  let ticks = '';
+  for (let i = 0; i <= n; i++) { const x = x0 + (x1 - x0) * i / n, L = i % 10 === 0 ? 18 : i % 5 === 0 ? 12 : 8; ticks += `<line x1="${x}" y1="${y}" x2="${x}" y2="${y - L}" stroke="#334155" stroke-width="1.6"/>`; }
+  const mark = (x, lbl, active, done) => `<g><circle cx="${x}" cy="${y}" r="9" fill="none" stroke="${active || done ? '#FF5CC8' : '#94A3B8'}" stroke-width="${active ? 3.5 : 2.5}" ${active ? 'class="blink"' : ''}/>${done ? `<circle cx="${x}" cy="${y}" r="2.5" fill="#FF5CC8"/>` : ''}<rect x="${x - 22}" y="${y + 14}" width="44" height="20" rx="10" fill="${active || done ? '#FF5CC8' : '#475569'}"/><text x="${x}" y="${y + 28}" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">${lbl}</text></g>`;
+  return `<style>.blink{animation:blink 1s ease-in-out infinite}@keyframes blink{50%{opacity:.25}}</style>
+    <rect width="${w}" height="${h}" fill="#0B1220"/><circle cx="${cx}" cy="${cy}" r="${R * 1.6}" fill="#CFD8CB"/>
+    <line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="#334155" stroke-width="2"/>${ticks}
+    ${state === 2 ? `<line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="#FF5CC8" stroke-width="3"/>` : ''}
+    ${mark(x0, '0', state === 0, state >= 1)}${mark(x1, '100', state === 1, state === 2)}`;
+}
+function howSvgs() {
+  const W = 320, H = 190;
+  const s1 = `<svg class="illus" viewBox="0 0 ${W} ${H}">${micrometerSvg(W, H, 2)}</svg>`;
+  const s2 = `<svg class="illus" viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="#0B1220"/><circle cx="160" cy="95" r="78" fill="#CFD8CB"/>${cellShape(150, 88, -20)}${cellShape(185, 120, 15, '#9CBB88')}
+    <g transform="translate(236 132)"><rect width="56" height="40" rx="12" fill="#0E8F86"/><path d="M33 13h-10l-3 4h-5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h26a2 2 0 0 0 2-2V19a2 2 0 0 0-2-2h-5z" fill="none" stroke="#fff" stroke-width="2" transform="translate(0 -2)"/><circle cx="28" cy="24" r="4" fill="none" stroke="#fff" stroke-width="2"/></g></svg>`;
+  const s3 = `<svg class="illus" viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="#0B1220"/><circle cx="160" cy="95" r="78" fill="#CFD8CB"/>${cellShape(160, 98, -20)}
+    <line x1="128" y1="110" x2="192" y2="86" stroke="#fff" stroke-width="6" stroke-linecap="round"/><line x1="128" y1="110" x2="192" y2="86" stroke="#FFD233" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="128" cy="110" r="7" fill="none" stroke="#FFD233" stroke-width="2.5"/><circle cx="192" cy="86" r="7" fill="none" stroke="#FFD233" stroke-width="2.5"/>
+    <rect x="166" y="46" width="78" height="26" rx="13" fill="rgba(0,0,0,.75)"/><text x="205" y="64" text-anchor="middle" font-size="15" font-weight="800" fill="#FFD233">200μm</text></svg>`;
+  const items = [
+    [s1, '보정', '대물 마이크로미터 사진에서 눈금 0과 100을 터치해 1mm의 크기를 알려 줘요.'],
+    [s2, '사진 넣기', '현미경으로 찍은 사진을 넣고 배율과 관찰 대상을 골라요.'],
+    [s3, '측정', '양 끝을 터치하면 실제 길이가 나와요. 여러 개를 재면 평균과 그래프도 볼 수 있어요.']
+  ];
+  return items.map(([svg, t, d], i) => `<article class="how">${svg}<div class="txt"><h3><span class="n">${i + 1}</span>${t}</h3><p>${d}</p></div></article>`).join('');
+}
+
+/* ========== 사진 넣기 ========== */
+let pickFor = null;
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-pick]'); if (!b) return;
+  pickFor = b.dataset.for;
+  (b.dataset.pick === 'cam' ? $('#fileCam') : $('#fileGal')).click();
+});
+['#fileCam', '#fileGal'].forEach(id => $(id).addEventListener('change', async e => {
+  const f = e.target.files && e.target.files[0]; e.target.value = '';
+  if (!f) return;
+  try {
+    const { img, url } = await loadImage(f);
+    if (pickFor === 'calib') setCalibImage(img, url); else setPendingPhoto(img, url);
+  } catch (err) { toast('사진을 열 수 없어요. 다른 사진으로 해 보세요.'); }
+}));
+function loadImage(file) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file); const im = new Image();
+    im.onload = () => res({ img: im, url });
+    im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('load')); };
+    im.src = url;
+  });
+}
+
+/* ========== 1단계: 보정 ========== */
+const cal = { mag: 1, byMag: { 1: { img: null, url: null, pts: [] }, 4: { img: null, url: null, pts: [] } } };
+const calS = () => cal.byMag[cal.mag];
+const calV = new Viewer($('#calibViewer'), {
+  getInsets: stageInsets($('#stage1')),
+  needsAnim: popping,
+  onTap: p => {
+    const s = calS();
+    if (s.pts.length < 2) { s.pts.push(p); pop.at = performance.now(); pop.key = 'c' + (s.pts.length - 1); renderCalib(); }
+    else toast('점을 끌어서 고치거나 [다시 하기]를 누르세요');
+  },
+  getHandles: () => calS().pts.map((p, i) => ({ ...p, id: i })),
+  onDrag: (id, p) => { calS().pts[id] = p; renderCalibNow(); },
+  drawOverlay: (c, v) => {
+    const pts = calS().pts.map(p => v.toS(p));
+    if (pts.length === 2) {
+      gLine(c, pts[0], pts[1], COL.cal, 1);
+      gLabel(c, `${Math.round(dist(calS().pts[0], calS().pts[1]))}픽셀`, labelPos(pts[0], pts[1], 1), COL.cal, 1);
+    }
+    pts.forEach((p, i) => gDot(c, p, COL.cal, popK('c' + i), i === 0 ? '0' : '끝'));
+  }
+});
+wireStage($('#stage1'), calV);
+function setCalibImage(img, url) {
+  const s = calS();
+  if (s.url) URL.revokeObjectURL(s.url);
+  s.img = img; s.url = url; s.pts = [];
+  calV.setImage(img); renderCalib();
+}
+function renderCalib() {
+  const s = calS();
+  $('#calMags').innerHTML = MAGS.map(m => {
+    const ok = !!S.calib[m];
+    return `<button data-m="${m}" class="${m === cal.mag ? 'on' : ''}">${m}배율<span class="tag ${ok ? 'ok' : ''}">${ok ? '✓ 보정 완료' : '보정 전'}</span></button>`;
+  }).join('');
+  $('#calEmptyT').textContent = `${cal.mag}배율로 찍은 대물 마이크로미터 사진을 넣어 주세요`;
+  if (calV.img !== s.img) calV.setImage(s.img);
+  let ins, sub = '', state = -1;
+  if (!s.img) { ins = `${cal.mag}배율 마이크로미터 사진을 넣어 주세요`; sub = S.calib[cal.mag] ? '이미 보정했어요. 다시 하려면 사진을 넣으세요.' : '왼쪽 화면의 [사진 찍기]나 [갤러리에서 고르기]를 누르세요.'; }
+  else if (s.pts.length === 0) { state = 0; ins = '눈금 시작점(0)을 터치하세요'; sub = '손가락을 대고 움직이면 돋보기가 나와요. 손을 떼면 점이 찍혀요. 두 손가락으로 확대할 수 있어요.'; }
+  else if (s.pts.length === 1) { state = 1; ins = '끝 눈금(100)을 터치하세요'; sub = '눈금 선의 같은 쪽 가장자리에 맞추면 더 정확해요.'; }
+  else { state = 2; ins = '점이 맞으면 [보정 저장]을 누르세요'; sub = '점을 끌어서 고칠 수 있어요.'; }
+  $('#calGuide').innerHTML = micrometerSvg(320, 120, state < 0 ? 2 : state);
+  $('#calInstr').innerHTML = `${esc(ins)}<span class="sub">${esc(sub)}</span>`;
+  $('#calPhotoBtns').hidden = !s.img;
+  renderCalibNow();
+  $('#calSaved').innerHTML = MAGS.map(m => {
+    const c = S.calib[m];
+    if (!c) return `<div class="savedcal"><span class="badge">${m}×</span><div class="t"><b>${m}배율</b><br><span>아직 보정하지 않았어요</span></div></div>`;
+    return `<div class="savedcal ok"><span class="badge">${m}×</span><div class="t"><b class="num">1mm = ${Math.round(c.pxPerMm)}픽셀</b><br><span class="num">1픽셀 = ${(1000 / c.pxPerMm).toFixed(2)}μm · 사진 ${c.w}×${c.h}</span></div><button class="iconbtn" data-delcal="${m}" aria-label="${m}배율 보정 지우기">${icon('trash', 'sm')}</button></div>`;
+  }).join('');
+  const a = S.calib[1], b = S.calib[4];
+  $('#calRatio').innerHTML = a && b ? `<div class="note ok">${icon('check', 'sm')}<span>4배율은 1배율보다 <b class="num">${(b.pxPerMm / a.pxPerMm).toFixed(2)}배</b> 크게 보여요.</span></div>` : '';
+  $('#calNext').disabled = !Object.keys(S.calib).length;
+  updateProgress();
+}
+function renderCalibNow() {
+  const s = calS();
+  const ticks = parseFloat($('#ticks').value);
+  $('#ticksInfo').textContent = ticks > 0 ? `칸 = ${fmtMm(ticks * 10)}mm · 1칸 10μm` : '눈금 수를 써 주세요';
+  let ppm = null;
+  if (s.pts.length === 2 && ticks > 0) ppm = dist(s.pts[0], s.pts[1]) / (ticks * 0.01);
+  $('#calNowV').innerHTML = ppm ? `${Math.round(ppm)}<small>픽셀</small>` : '—';
+  $('#calNowP').innerHTML = ppm ? `${(1000 / ppm).toFixed(2)}<small>μm</small>` : '—';
+  const chip = $('#calChip');
+  chip.hidden = !ppm;
+  if (ppm) chip.innerHTML = `<span class="pill"><i style="background:${COL.cal}">1mm</i><b class="num">${Math.round(ppm)}</b><small>픽셀</small></span>`;
+  $('#calSave').disabled = s.pts.length < 2;
+  $('#calReset').disabled = !s.pts.length;
+}
+$('#ticks').addEventListener('input', renderCalibNow);
+$('#calMags').addEventListener('click', e => {
+  const b = e.target.closest('[data-m]'); if (!b) return;
+  cal.mag = +b.dataset.m; renderCalib();
+});
+$('#calReset').onclick = () => { calS().pts = []; renderCalib(); calV.draw(); };
+$('#calSave').onclick = () => {
+  const s = calS();
+  if (s.pts.length < 2) return;
+  const ticks = parseFloat($('#ticks').value);
+  if (!(ticks > 0)) { toast('눈금 수를 바르게 써 주세요'); return; }
+  const d = dist(s.pts[0], s.pts[1]);
+  if (d < 10) { toast('두 점이 너무 가까워요. 다시 찍어 주세요.'); return; }
+  const ppm = d / (ticks * 0.01);
+  S.calib[cal.mag] = { pxPerMm: ppm, ticks, distPx: d, w: s.img.naturalWidth, h: s.img.naturalHeight, at: Date.now() };
+  persist();
+  toast(`${cal.mag}배율 보정 완료! 1mm = ${Math.round(ppm)}픽셀`);
+  const other = MAGS.find(m => !S.calib[m]);
+  if (other) cal.mag = other;
+  renderCalib();
+};
+$('#calSaved').addEventListener('click', e => {
+  const b = e.target.closest('[data-delcal]'); if (!b) return;
+  const m = +b.dataset.delcal;
+  modal(`${m}배율 보정을 지울까요?`, '<p>지우면 이 배율 사진은 다시 보정해야 잴 수 있어요.</p>', [
+    { label: '지우기', cls: 'danger', fn: () => { delete S.calib[m]; persist(); renderCalib(); } },
+    { label: '취소' }
+  ]);
+});
+$('#calNext').onclick = () => go(2);
+
+/* ========== 2단계: 사진 넣기 ========== */
+const P = { img: null, url: null, mag: null };
+const CHIPS = ['양파 표피세포', '짚신벌레', '입안 상피세포', '꽃가루'];
+function setPendingPhoto(img, url) {
+  P.img = img; P.url = url;
+  if (!P.mag || !S.calib[P.mag]) P.mag = S.lastMag && S.calib[S.lastMag] ? S.lastMag : (MAGS.filter(m => S.calib[m]).length === 1 ? MAGS.find(m => S.calib[m]) : null);
+  renderStep2();
+}
+function sizeWarning(img, mag) {
+  const c = S.calib[mag] || S.calib[MAGS.find(m => S.calib[m])]; if (!img || !c) return '';
+  const w = img.naturalWidth, h = img.naturalHeight;
+  if ((w === c.w && h === c.h) || (w === c.h && h === c.w)) return '';
+  return `보정 사진과 크기가 달라요 (보정 ${c.w}×${c.h}, 지금 ${w}×${h}). 같은 태블릿으로 찍었는지, 사진을 자르거나 메신저로 보내지 않았는지 확인해 주세요.`;
+}
+function renderStep2() {
+  $('#reloadHint').hidden = !(S.results.length && !P.img && !M.img);
+  $('#p2Img').hidden = !P.img; $('#p2Size').hidden = !P.img; $('#p2Empty').hidden = !!P.img;
+  if (P.img) { $('#p2Img').src = P.url; $('#p2Size').textContent = `${P.img.naturalWidth}×${P.img.naturalHeight}`; }
+  $('#p2Mags').innerHTML = MAGS.map(m => {
+    const ok = !!S.calib[m];
+    return `<button data-m="${m}" class="${P.mag === m ? 'on' : ''}" ${ok ? '' : 'disabled'}>${m}배율<span class="tag">${ok ? '보정 완료' : '보정 안 함'}</span></button>`;
+  }).join('');
+  if (document.activeElement !== $('#p2Target')) $('#p2Target').value = S.target || '';
+  const used = [...new Set(S.results.map(r => r.target))];
+  const chips = [...new Set([...used, ...CHIPS])].slice(0, 6);
+  $('#p2Chips').innerHTML = chips.map(c => `<button class="${c === S.target ? 'on' : ''}">${esc(c)}</button>`).join('');
+  const w = sizeWarning(P.img, P.mag);
+  $('#p2Warn').hidden = !w; $('#p2Warn').innerHTML = w ? `${icon('alert', 'sm')}<span>${esc(w)}</span>` : '';
+  $('#p2Start').disabled = !(P.img && P.mag);
+  updateProgress();
+}
+$('#p2Mags').addEventListener('click', e => {
+  const b = e.target.closest('[data-m]'); if (!b || b.disabled) return;
+  P.mag = +b.dataset.m; renderStep2();
+});
+$('#p2Chips').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  $('#p2Target').value = b.textContent; S.target = b.textContent; persist(); renderStep2();
+});
+$('#p2Target').addEventListener('input', e => {
+  S.target = e.target.value.trim(); persist();
+  document.querySelectorAll('#p2Chips button').forEach(b => b.classList.toggle('on', b.textContent === S.target));
+});
+$('#p2Start').onclick = () => {
+  const name = $('#p2Target').value.trim();
+  if (!name) { toast('무엇을 재는지 이름을 써 주세요'); $('#p2Target').focus(); return; }
+  S.target = name; S.lastMag = P.mag; persist();
+  if (M.img !== P.img) {
+    M.img = P.img; M.photoId = ++S.photoSeq; M.seg = null; persist();
+    mV.setImage(M.img);
+  }
+  M.mag = P.mag; M.target = name; M.pts = []; M.obj = null;
+  go(3);
+};
+
+/* ========== 3단계: 측정 ========== */
+const M = { img: null, photoId: null, mag: null, target: '', mode: 'two', pts: [], obj: null, seg: null, sens: 50, tab: 'measure', lastNo: null };
+const mV = new Viewer($('#measViewer'), {
+  getInsets: stageInsets($('#stage3')),
+  needsAnim: popping,
+  onTap: p => measureTap(p),
+  getHandles: () => M.mode === 'object' ? [] : M.pts.map((p, i) => ({ ...p, id: i })),
+  onDrag: (id, p) => { M.pts[id] = p; renderReadout(); },
+  drawImageSpace: c => {
+    if (M.mode === 'object' && M.obj && M.obj.ok) {
+      c.imageSmoothingEnabled = true;
+      c.drawImage(M.obj.maskCanvas, 0, 0, M.img.naturalWidth, M.img.naturalHeight);
+    }
+  },
+  drawOverlay: (c, v) => {
+    const map = p => v.toS(p);
+    c.globalAlpha = 0.8;
+    S.results.filter(r => r.photoId === M.photoId).forEach(r => drawItem(c, r, map, 1, `#${r.no}`, true));
+    c.globalAlpha = 1;
+    const cur = currentMeasure();
+    if (cur) {
+      drawItem(c, cur, map, 1);
+      if (cur.mode !== 'object') M.pts.forEach((q, i) => { const k = popK('m' + i); if (k > 1) gDot(c, map(q), (M.mode === 'four' && i >= 2) ? COL.wid : COL.len, k); });
+      return;
+    }
+    const p = M.pts.map(map);
+    if (M.mode === 'four' && p.length >= 2) {
+      gLine(c, p[0], p[1], COL.len, 1);
+      const k = 1000 / S.calib[M.mag].pxPerMm;
+      gLabel(c, `길이 ${Math.round(dist(M.pts[0], M.pts[1]) * k)}μm`, labelPos(p[0], p[1], 1), COL.len, 1);
+    }
+    p.forEach((q, i) => gDot(c, q, (M.mode === 'four' && i >= 2) ? COL.wid : COL.len, popK('m' + i), M.mode === 'four' ? i + 1 : null));
+  }
+});
+wireStage($('#stage3'), mV);
+function ppmNow() { return S.calib[M.mag] ? S.calib[M.mag].pxPerMm : null; }
+function currentMeasure() {
+  const ppm = ppmNow(); if (!ppm) return null;
+  const k = 1000 / ppm;
+  if (M.mode === 'two' && M.pts.length === 2) return { mode: 'two', len: dist(M.pts[0], M.pts[1]) * k, wid: null, geom: { pts: M.pts.map(r1) } };
+  if (M.mode === 'four' && M.pts.length === 4) return { mode: 'four', len: dist(M.pts[0], M.pts[1]) * k, wid: dist(M.pts[2], M.pts[3]) * k, geom: { pts: M.pts.map(r1) } };
+  if (M.mode === 'object' && M.obj && M.obj.ok) return { mode: 'object', len: M.obj.lenPx * k, wid: M.obj.widPx * k, geom: { rect: M.obj.rect.map(r1), la: M.obj.la.map(r1), sa: M.obj.sa.map(r1) } };
+  return null;
+}
+function measureTap(p) {
+  if (!ppmNow()) { toast(`${M.mag}배율 보정값이 없어요. 1단계에서 보정해 주세요.`); return; }
+  if (M.mode === 'object') { M.obj = { seed: p }; runObject(); return; }
+  const max = M.mode === 'two' ? 2 : 4;
+  if (M.pts.length < max) { M.pts.push(p); pop.at = performance.now(); pop.key = 'm' + (M.pts.length - 1); renderMeasure(); }
+  else toast('점을 끌어서 고치거나 [다시 하기]를 누르세요');
+}
+function runObject() {
+  if (!M.obj || !M.obj.seed) return;
+  if (!M.seg) M.seg = prepSeg(M.img);
+  const seed = M.obj.seed;
+  M.obj = Object.assign({ seed }, segment(M.seg, seed, M.sens));
+  renderMeasure();
+}
+function renderMeasure() {
+  $('#mInfoT').textContent = M.target;
+  const c = S.calib[M.mag];
+  $('#mInfoS').textContent = c ? `${M.mag}배율 · 1mm = ${Math.round(c.pxPerMm)}픽셀` : `${M.mag}배율 · 보정값 없음`;
+  document.querySelectorAll('#mRail [data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === M.mode));
+  $('#sensRow').hidden = M.mode !== 'object';
+  $('#sensVal').textContent = M.sens;
+  let ins, sub = '';
+  const n = M.pts.length;
+  if (M.mode === 'two') {
+    if (n === 0) { ins = '길이의 한쪽 끝을 터치하세요'; sub = '손가락을 대고 움직이면 돋보기가 나와요. 손을 떼면 점이 찍혀요.'; }
+    else if (n === 1) ins = '다른 쪽 끝을 터치하세요';
+    else { ins = '맞으면 [결과에 추가]를 누르세요'; sub = '점을 끌어서 고칠 수 있어요.'; }
+  } else if (M.mode === 'four') {
+    ins = ['길이의 한쪽 끝을 터치하세요 (1/4)', '길이의 다른 쪽 끝을 터치하세요 (2/4)', '폭의 한쪽 끝을 터치하세요 (3/4)', '폭의 다른 쪽 끝을 터치하세요 (4/4)', '맞으면 [결과에 추가]를 누르세요'][n];
+    sub = n < 2 ? '길이는 가장 긴 쪽, 폭은 길이와 직각인 쪽이에요.' : n === 4 ? '점을 끌어서 고칠 수 있어요.' : '폭은 길이 선과 직각이 되게 재요.';
+  } else {
+    if (!M.obj) { ins = '재고 싶은 개체의 한가운데를 터치하세요'; sub = '배경과 색이 다른 부분을 찾아 노란 테두리로 보여 줘요.'; }
+    else if (M.obj.ok) { ins = '노란 테두리가 개체와 맞나요?'; sub = '맞으면 [결과에 추가]를 누르세요. 안 맞으면 민감도를 바꾸거나 다시 터치해 보세요.'; }
+    else {
+      ins = '잘 안 잡혔어요';
+      sub = { none: '터치한 곳에서 개체를 못 찾았어요. 개체 한가운데를 다시 터치하거나 민감도를 높여 보세요.', big: '배경까지 같이 잡혔어요. 민감도를 낮춰 보세요.', small: '너무 작게 잡혔어요. 민감도를 높여 보세요.' }[M.obj.reason] + ' 그래도 안 되면 [네 점]으로 직접 재 보세요.';
+    }
+  }
+  M.instr = ins;
+  $('#mInstr').innerHTML = `${esc(ins)}${sub ? `<span class="sub">${esc(sub)}</span>` : ''}`;
+  renderReadout();
+  renderMini();
+  renderResults();
+  mV.draw();
+  updateProgress();
+}
+function renderReadout() {
+  const ppm = ppmNow(), k = ppm ? 1000 / ppm : 0;
+  let len = null, wid = null;
+  if (ppm) {
+    if ((M.mode === 'two' || M.mode === 'four') && M.pts.length >= 2) len = dist(M.pts[0], M.pts[1]) * k;
+    if (M.mode === 'four' && M.pts.length === 4) wid = dist(M.pts[2], M.pts[3]) * k;
+    if (M.mode === 'object' && M.obj && M.obj.ok) { len = M.obj.lenPx * k; wid = M.obj.widPx * k; }
+  }
+  $('#roLen').innerHTML = len == null ? '—' : `${umHtml(len)}`;
+  $('#roWid').innerHTML = M.mode === 'two' ? '<small style="font-size:14px;margin:0">두 점은 길이만 재요</small>' : wid == null ? '—' : `${umHtml(wid)}`;
+  $('#roLen').title = len == null ? '' : fmtUm(len);
+  const chip = $('#mChip');
+  if (len == null) chip.innerHTML = `<span class="msg">${esc(M.instr || '')}</span>`;
+  else chip.innerHTML = `<span class="pill"><i style="background:${COL.len}">길이</i><b class="num">${Math.round(len)}</b><small>μm · ${fmtMm(len)}mm</small></span>` +
+    (wid == null ? '' : `<span class="pill"><i style="background:${COL.wid}">폭</i><b class="num">${Math.round(wid)}</b><small>μm</small></span>`);
+  $('#mAdd').disabled = !currentMeasure();
+  $('#mReset').disabled = !(M.pts.length || M.obj);
+}
+function renderMini() {
+  const rs = S.results.filter(r => r.target === M.target);
+  $('#mMini').innerHTML = rs.length
+    ? `<div class="mini"><span class="t"><b>${esc(M.target)}</b> ${rs.length}개 측정 · 길이 평균 <b class="num">${Math.round(rs.reduce((s, r) => s + r.len, 0) / rs.length)}μm</b></span><button data-tab-go="results">결과 보기</button></div>`
+    : `<div class="mini"><span class="t">여러 개를 재면 <b>평균</b>과 <b>그래프</b>를 볼 수 있어요.</span></div>`;
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-tab-go]'); if (b) setTab(b.dataset.tabGo); });
+function setTab(t) {
+  M.tab = t;
+  document.querySelectorAll('#mTabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  $('#paneMeasure').hidden = t !== 'measure'; $('#paneResults').hidden = t !== 'results';
+  $('#footMeasure').hidden = t !== 'measure'; $('#footResults').hidden = t !== 'results';
+  if ($('#stage3').classList.contains('collapsed')) { $('#stage3').classList.remove('collapsed'); setTimeout(() => mV.fit(), 320); }
+}
+$('#mTabs').addEventListener('click', e => { const b = e.target.closest('[data-tab]'); if (b) setTab(b.dataset.tab); });
+$('#mRail').addEventListener('click', e => {
+  const b = e.target.closest('[data-mode]'); if (!b) return;
+  if (M.mode === b.dataset.mode) return;
+  M.mode = b.dataset.mode; M.pts = []; M.obj = null; renderMeasure();
+});
+let sensTimer = 0;
+$('#sens').addEventListener('input', e => {
+  M.sens = +e.target.value; $('#sensVal').textContent = M.sens;
+  clearTimeout(sensTimer); sensTimer = setTimeout(runObject, 120);
+});
+$('#mReset').onclick = () => { M.pts = []; M.obj = null; renderMeasure(); };
+$('#mChange').onclick = () => go(2);
+$('#mAdd').onclick = () => {
+  const m = currentMeasure(); if (!m) return;
+  const no = ++S.seq;
+  S.results.push({ no, photoId: M.photoId, target: M.target, mag: M.mag, mode: m.mode, len: m.len, wid: m.wid, geom: m.geom, at: Date.now() });
+  persist();
+  M.pts = []; M.obj = null; M.lastNo = no;
+  const cnt = S.results.filter(r => r.target === M.target).length;
+  toast(`#${no} 추가! ${M.target} ${cnt}개째`);
+  renderMeasure();
+  const c = $('#resCnt'); c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump');
+};
+
+/* ========== 결과: 요약, 그래프, 목록 ========== */
+function averages() {
+  const groups = new Map();
+  S.results.forEach(r => { if (!groups.has(r.target)) groups.set(r.target, []); groups.get(r.target).push(r); });
+  return [...groups].map(([target, rs]) => {
+    const ls = rs.map(r => r.len), ws = rs.filter(r => r.wid != null).map(r => r.wid);
+    const avg = a => a.reduce((s, v) => s + v, 0) / a.length;
+    return { target, n: rs.length, len: avg(ls), lmin: Math.min(...ls), lmax: Math.max(...ls), ls,
+      nw: ws.length, wid: ws.length ? avg(ws) : null, wmin: ws.length ? Math.min(...ws) : null, wmax: ws.length ? Math.max(...ws) : null, ws };
+  });
+}
+function dotPlot(vals, color, avg) {
+  const W = 320, H = 70, pad = 18;
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  if (hi - lo < 10) { const m = (hi + lo) / 2; lo = m - 5; hi = m + 5; }
+  const sp = hi - lo; lo -= sp * 0.1; hi += sp * 0.1;
+  const X = v => pad + (v - lo) / (hi - lo) * (W - 2 * pad);
+  const base = 40, placed = [];
+  const dots = vals.map(v => {
+    const x = X(v); let lvl = 0;
+    while (placed.some(p => p.lvl === lvl && Math.abs(p.x - x) < 11)) lvl++;
+    placed.push({ x, lvl });
+    return `<circle cx="${x.toFixed(1)}" cy="${Math.max(8, base - lvl * 10)}" r="5.5" fill="${color}" fill-opacity=".8" stroke="#fff" stroke-width="1.5"><title>${Math.round(v)}μm</title></circle>`;
+  }).join('');
+  const ax = X(avg);
+  const lbl = `평균 ${Math.round(avg)}`, lw = lbl.length * 6.6 + 12, lx = clamp(ax, lw / 2 + 2, W - lw / 2 - 2);
+  return `<svg class="plot" viewBox="0 0 ${W} ${H}" role="img" aria-label="측정값 분포">
+    <line x1="${pad}" y1="${base + 9}" x2="${W - pad}" y2="${base + 9}" stroke="#E3E8EF" stroke-width="2"/>
+    <line x1="${ax}" y1="2" x2="${ax}" y2="${base + 12}" stroke="#0F1B2D" stroke-width="1.5" stroke-dasharray="3 3"/>
+    ${dots}
+    <text x="${pad}" y="${H - 4}" font-size="11" fill="#64748B" font-weight="600">${Math.round(Math.min(...vals))}μm</text>
+    <text x="${W - pad}" y="${H - 4}" font-size="11" fill="#64748B" font-weight="600" text-anchor="end">${Math.round(Math.max(...vals))}μm</text>
+    <rect x="${lx - lw / 2}" y="${H - 17}" width="${lw}" height="16" rx="8" fill="#0F1B2D"/>
+    <text x="${lx}" y="${H - 5}" font-size="11" fill="#fff" font-weight="800" text-anchor="middle">${lbl}</text></svg>`;
+}
+function renderResults() {
+  const R = S.results;
+  $('#resCnt').textContent = R.length;
+  $('#csvBtn').disabled = !R.length;
+  $('#listLbl').hidden = !R.length;
+  if (!R.length) {
+    $('#sumWrap').innerHTML = `<div class="emptyres">아직 결과가 없어요.<br>측정하고 [결과에 추가]를 누르세요.</div>`;
+    $('#resWrap').innerHTML = ''; return;
+  }
+  const avs = averages().sort((a, b) => (a.target === M.target ? -1 : b.target === M.target ? 1 : 0));
+  $('#sumWrap').innerHTML = avs.map(a => `<div class="sum">
+      <div class="sum-head"><b>${esc(a.target)}</b><span class="pill-n num">${a.n}개</span></div>
+      <div class="metric"><span class="k"><i style="background:var(--len-ink)"></i>길이 평균</span><span class="v num">${umHtml(a.len)}<small>${fmtMm(a.len)}mm</small></span>
+        <span class="muted num" style="font-size:13px">가장 작은 값 ${Math.round(a.lmin)}μm ~ 가장 큰 값 ${Math.round(a.lmax)}μm</span></div>
+      ${a.n >= 2 ? dotPlot(a.ls, '#0E8F86', a.len) : ''}
+      ${a.wid != null ? `<div class="metric"><span class="k"><i style="background:var(--wid-ink)"></i>폭 평균 <span class="num">(${a.nw}개)</span></span><span class="v num">${umHtml(a.wid)}<small>${fmtMm(a.wid)}mm</small></span></div>
+      ${a.nw >= 2 ? dotPlot(a.ws, '#0284C7', a.wid) : ''}` : ''}
+      ${a.n < 2 ? '<span class="muted" style="font-size:13px">2개 이상 재면 그래프가 나와요.</span>' : ''}
+    </div>`).join('');
+  $('#resWrap').innerHTML = R.slice().reverse().map(r => `<div class="ritem ${r.no === M.lastNo ? 'enter' : ''}">
+      <span class="no num">${r.no}</span>
+      <div class="t"><b>${esc(r.target)}</b><span>${r.mag}배율 · ${MODE_NAME[r.mode]}</span></div>
+      <div class="vals num">${Math.round(r.len)}μm<span>${r.wid != null ? `폭 ${Math.round(r.wid)}μm` : '길이만'}</span></div>
+      <button class="del" data-del="${r.no}" aria-label="${r.no}번 지우기">${icon('trash', 'sm')}</button></div>`).join('');
+  M.lastNo = null;
+}
+$('#resWrap').addEventListener('click', e => {
+  const b = e.target.closest('[data-del]'); if (!b) return;
+  const no = +b.dataset.del;
+  modal(`${no}번 결과를 지울까요?`, '', [
+    { label: '지우기', cls: 'danger', fn: () => { S.results = S.results.filter(r => r.no !== no); persist(); renderMeasure(); } },
+    { label: '취소' }
+  ]);
+});
+
+/* ========== CSV ========== */
+function csvText() {
+  const q = v => { const s = v == null ? '' : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const rows = [['번호', '대상', '배율', '측정 방법', '길이(μm)', '폭(μm)', '길이(mm)', '폭(mm)', '사진 번호', '측정 시각']];
+  S.results.forEach(r => {
+    const d = new Date(r.at);
+    rows.push([r.no, r.target, `${r.mag}배율`, MODE_NAME[r.mode], Math.round(r.len), r.wid == null ? '' : Math.round(r.wid),
+      fmtMm(r.len), r.wid == null ? '' : fmtMm(r.wid), r.photoId, `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`]);
+  });
+  rows.push([]);
+  rows.push(['대상별 요약', '대상', '개수', '', '길이 평균(μm)', '폭 평균(μm)', '가장 짧은 길이(μm)', '가장 긴 길이(μm)']);
+  averages().forEach(a => rows.push(['', a.target, a.n, '', Math.round(a.len), a.wid == null ? '' : Math.round(a.wid), Math.round(a.lmin), Math.round(a.lmax)]));
+  return '﻿' + rows.map(r => r.map(q).join(',')).join('\r\n');
+}
+function downloadBlob(blob, name) {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 5000);
+}
+function downloadCSV() {
+  if (!S.results.length) { toast('저장할 결과가 없어요'); return; }
+  downloadBlob(new Blob([csvText()], { type: 'text/csv;charset=utf-8' }), `현미경측정_${ymd()}.csv`);
+  toast('CSV 파일을 저장했어요 (다운로드 폴더)');
+}
+$('#csvBtn').onclick = downloadCSV;
+
+/* ========== 측정선 그린 사진 저장 ========== */
+function niceBar(pxPerUm, W) {
+  const cands = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000];
+  let best = cands[0], bd = Infinity;
+  cands.forEach(c => { const px = c * pxPerUm; if (px > W * 0.32) return; const d = Math.abs(px - W * 0.18); if (d < bd) { bd = d; best = c; } });
+  return best;
+}
+$('#mSaveImg').onclick = () => {
+  if (!M.img) return;
+  const list = S.results.filter(r => r.photoId === M.photoId);
+  if (!list.length) { toast('먼저 측정하고 [결과에 추가]를 눌러 주세요. 추가한 측정만 사진에 그려져요.', 3500); return; }
+  const W = M.img.naturalWidth, H = M.img.naturalHeight;
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const c = cv.getContext('2d');
+  c.drawImage(M.img, 0, 0);
+  const u = Math.max(1, Math.max(W, H) / 1000);
+  list.forEach(r => drawItem(c, r, p => p, u, `#${r.no}`, true));
+  // 왼쪽 아래 측정값 목록
+  {
+    const lf = 20 * u, lh = lf * 1.5, pad = 14 * u;
+    c.font = `800 ${lf}px system-ui, "Noto Sans KR", sans-serif`; c.textBaseline = 'middle'; c.textAlign = 'left';
+    const lines = list.map(r => [`#${r.no} ${MODE_NAME[r.mode]}`, `길이 ${Math.round(r.len)}μm`, r.wid != null ? `폭 ${Math.round(r.wid)}μm` : '']);
+    const w0 = Math.max(...lines.map(l => c.measureText(l[0]).width)), w1 = Math.max(...lines.map(l => c.measureText(l[1]).width)), w2 = Math.max(...lines.map(l => c.measureText(l[2]).width));
+    const gap = lf * 0.8, bw = pad * 2 + w0 + gap + w1 + (w2 ? gap + w2 : 0), bh = pad * 2 + lh * lines.length;
+    const bx = 14 * u, by = H - bh - 14 * u;
+    c.fillStyle = 'rgba(0,0,0,.72)'; roundRect(c, bx, by, bw, bh, 10 * u); c.fill();
+    lines.forEach((l, i) => {
+      const y = by + pad + lh * (i + 0.5);
+      c.fillStyle = '#fff'; c.fillText(l[0], bx + pad, y);
+      c.fillStyle = COL.len; c.fillText(l[1], bx + pad + w0 + gap, y);
+      if (l[2]) { c.fillStyle = COL.wid; c.fillText(l[2], bx + pad + w0 + gap + w1 + gap, y); }
+    });
+  }
+  // 왼쪽 위 정보
+  const d = new Date();
+  const head = `${M.target} · ${M.mag}배율 · ${d.getFullYear()}.${pad2(d.getMonth() + 1)}.${pad2(d.getDate())}`;
+  const fs = 24 * u;
+  c.font = `800 ${fs}px system-ui, "Noto Sans KR", sans-serif`; c.textBaseline = 'middle'; c.textAlign = 'left';
+  const hw = c.measureText(head).width + fs * 1.2, hh = fs * 1.8;
+  c.fillStyle = 'rgba(0,0,0,.7)'; roundRect(c, 14 * u, 14 * u, hw, hh, 10 * u); c.fill();
+  c.fillStyle = '#fff'; c.fillText(head, 14 * u + fs * 0.6, 14 * u + hh / 2);
+  // 오른쪽 아래 축척 막대
+  const ppm = S.calib[M.mag] ? S.calib[M.mag].pxPerMm : null;
+  if (ppm) {
+    const pxPerUm = ppm / 1000, bar = niceBar(pxPerUm, W), bw = bar * pxPerUm;
+    const txt = bar >= 1000 ? `${bar / 1000}mm` : `${bar}μm`;
+    const pad = 16 * u, bh = 8 * u, boxW = Math.max(bw, 90 * u) + pad * 2, boxH = fs * 1.4 + bh + pad * 2;
+    const bx = W - boxW - 14 * u, by = H - boxH - 14 * u;
+    c.fillStyle = 'rgba(0,0,0,.7)'; roundRect(c, bx, by, boxW, boxH, 10 * u); c.fill();
+    const lx = bx + (boxW - bw) / 2, ly = by + boxH - pad - bh;
+    c.fillStyle = '#fff'; c.fillRect(lx, ly, bw, bh);
+    c.textAlign = 'center'; c.fillText(txt, bx + boxW / 2, by + pad + fs * 0.6);
+  }
+  const n = ++S.saveSeq; persist();
+  const safe = M.target.replace(/[\\/:*?"<>|\s]+/g, '_') || '측정';
+  cv.toBlob(b => {
+    if (!b) { toast('사진을 만들지 못했어요'); return; }
+    downloadBlob(b, `${safe}_${M.mag}배율_${ymd()}_${n}.jpg`);
+    toast('측정선 그린 사진을 저장했어요 (다운로드 폴더)');
+  }, 'image/jpeg', 0.92);
+};
+
+
+
+/* ========== 개체 자동 찾기 ========== */
+function prepSeg(img) {
+  const W = img.naturalWidth, H = img.naturalHeight, f = Math.min(1, 1400 / Math.max(W, H));
+  const w = Math.max(2, Math.round(W * f)), h = Math.max(2, Math.round(H * f));
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+  const x = cv.getContext('2d', { willReadFrequently: true }); x.drawImage(img, 0, 0, w, h);
+  const d = x.getImageData(0, 0, w, h).data, n = w * h;
+  const R = new Uint8ClampedArray(n), G = new Uint8ClampedArray(n), B = new Uint8ClampedArray(n);
+  for (let y = 0; y < h; y++) for (let xx = 0; xx < w; xx++) {
+    let r = 0, g = 0, b = 0, c = 0;
+    for (let dy = -1; dy <= 1; dy++) { const yy = y + dy; if (yy < 0 || yy >= h) continue;
+      for (let dx = -1; dx <= 1; dx++) { const x2 = xx + dx; if (x2 < 0 || x2 >= w) continue;
+        const j = (yy * w + x2) * 4; r += d[j]; g += d[j + 1]; b += d[j + 2]; c++; } }
+    const i = y * w + xx; R[i] = r / c; G[i] = g / c; B[i] = b / c;
+  }
+  return { w, h, fx: w / W, fy: h / H, R, G, B };
+}
+function morph(src, w, h, r, isMax) {
+  const tmp = new Uint8Array(w * h), out = new Uint8Array(w * h);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    let v = isMax ? 0 : 1;
+    for (let k = -r; k <= r; k++) { const xx = x + k; if (xx < 0 || xx >= w) continue; const s = src[y * w + xx]; v = isMax ? (v | s) : (v & s); }
+    tmp[y * w + x] = v;
+  }
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    let v = isMax ? 0 : 1;
+    for (let k = -r; k <= r; k++) { const yy = y + k; if (yy < 0 || yy >= h) continue; const s = tmp[yy * w + x]; v = isMax ? (v | s) : (v & s); }
+    out[y * w + x] = v;
+  }
+  return out;
+}
+function growRegion(m, w, h, sx, sy) {
+  const n = w * h;
+  let start = -1;
+  if (m[sy * w + sx]) start = sy * w + sx;
+  else {
+    let bd = Infinity; const sr2 = 14;
+    for (let dy = -sr2; dy <= sr2; dy++) for (let dx = -sr2; dx <= sr2; dx++) {
+      const x = sx + dx, y = sy + dy; if (x < 0 || y < 0 || x >= w || y >= h) continue;
+      const d2 = dx * dx + dy * dy; if (d2 < bd && m[y * w + x]) { bd = d2; start = y * w + x; }
+    }
+  }
+  if (start < 0) return { ok: false, reason: 'none' };
+  const reg = new Uint8Array(n), st = new Int32Array(n);
+  let top = 0, count = 0; st[top++] = start; reg[start] = 1;
+  while (top) {
+    const i = st[--top]; count++;
+    const x = i % w;
+    if (x > 0 && m[i - 1] && !reg[i - 1]) { reg[i - 1] = 1; st[top++] = i - 1; }
+    if (x < w - 1 && m[i + 1] && !reg[i + 1]) { reg[i + 1] = 1; st[top++] = i + 1; }
+    if (i >= w && m[i - w] && !reg[i - w]) { reg[i - w] = 1; st[top++] = i - w; }
+    if (i < n - w && m[i + w] && !reg[i + w]) { reg[i + w] = 1; st[top++] = i + w; }
+  }
+  if (count > n * 0.45) return { ok: false, reason: 'big' };
+  if (count < 25) return { ok: false, reason: 'small' };
+  // 속의 구멍 메우기
+  const out = new Uint8Array(n); top = 0;
+  const pushOut = i => { if (!reg[i] && !out[i]) { out[i] = 1; st[top++] = i; } };
+  for (let x = 0; x < w; x++) { pushOut(x); pushOut((h - 1) * w + x); }
+  for (let y = 0; y < h; y++) { pushOut(y * w); pushOut(y * w + w - 1); }
+  while (top) {
+    const i = st[--top], x = i % w;
+    if (x > 0) pushOut(i - 1); if (x < w - 1) pushOut(i + 1);
+    if (i >= w) pushOut(i - w); if (i < n - w) pushOut(i + w);
+  }
+  for (let i = 0; i < n; i++) if (!out[i]) reg[i] = 1;
+  return { ok: true, reg };
+}
+function segment(sd, seed, sens) {
+  const { w, h, fx, fy, R, G, B } = sd, n = w * h;
+  const sx = clamp(Math.floor(seed.x * fx), 0, w - 1), sy = clamp(Math.floor(seed.y * fy), 0, h - 1);
+  // 1) 터치한 곳 주변에서 가장 흔한 색 = 배경
+  const rad = Math.max(20, Math.round(Math.min(w, h) * 0.3));
+  const cnt = new Uint32Array(512), sr = new Float64Array(512), sg = new Float64Array(512), sb = new Float64Array(512);
+  for (let y = Math.max(0, sy - rad); y <= Math.min(h - 1, sy + rad); y += 2)
+    for (let x = Math.max(0, sx - rad); x <= Math.min(w - 1, sx + rad); x += 2) {
+      const i = y * w + x, k = ((R[i] >> 5) << 6) | ((G[i] >> 5) << 3) | (B[i] >> 5);
+      cnt[k]++; sr[k] += R[i]; sg[k] += G[i]; sb[k] += B[i];
+    }
+  let bk = 0; for (let k = 1; k < 512; k++) if (cnt[k] > cnt[bk]) bk = k;
+  const br = sr[bk] / cnt[bk], bg = sg[bk] / cnt[bk], bb = sb[bk] / cnt[bk];
+  // 2) 배경과의 색 차이
+  const D = new Float32Array(n);
+  for (let i = 0; i < n; i++) { const dr = R[i] - br, dg = G[i] - bg, db = B[i] - bb; D[i] = Math.sqrt(dr * dr + dg * dg + db * db); }
+  const maskAt = t => { const m = new Uint8Array(n); for (let i = 0; i < n; i++) m[i] = D[i] > t ? 1 : 0; return morph(morph(m, w, h, 2, true), w, h, 2, false); };
+  // 3) 1차: 민감도 기준으로 개체 찾기
+  const tol = 70 - sens * 0.6;
+  let res = growRegion(maskAt(tol), w, h, sx, sy);
+  if (!res.ok) return res;
+  // 4) 2차: 경계가 흐릿하면 개체 색과 배경 색의 중간에서 경계를 다시 잡기
+  const ds = []; for (let i = 0; i < n; i += 1) if (res.reg[i]) ds.push(D[i]);
+  ds.sort((a, b) => a - b);
+  const core = ds[Math.floor(ds.length * 0.75)];
+  const t2 = Math.max(tol, core * 0.5);
+  if (t2 > tol * 1.05) {
+    const res2 = growRegion(maskAt(t2), w, h, sx, sy);
+    if (res2.ok) res = res2;
+  }
+  const reg = res.reg;
+  // 5) 윤곽 그림, 회전 사각형
+  const mc = document.createElement('canvas'); mc.width = w; mc.height = h;
+  const mx = mc.getContext('2d'), id = mx.createImageData(w, h), DD = id.data;
+  const pts = [];
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = y * w + x; if (!reg[i]) continue;
+    const edge = x === 0 || y === 0 || x === w - 1 || y === h - 1 || !reg[i - 1] || !reg[i + 1] || !reg[i - w] || !reg[i + w];
+    const j = i * 4; DD[j] = 255; DD[j + 1] = 212; DD[j + 2] = 0; DD[j + 3] = edge ? 240 : 50;
+    if (edge) pts.push({ x: x / fx, y: y / fy }, { x: (x + 1) / fx, y: y / fy }, { x: x / fx, y: (y + 1) / fy }, { x: (x + 1) / fx, y: (y + 1) / fy });
+  }
+  mx.putImageData(id, 0, 0);
+  return Object.assign({ ok: true, maskCanvas: mc }, minAreaRect(convexHull(pts)));
+}
+function convexHull(P) {
+  const p = P.slice().sort((a, b) => a.x - b.x || a.y - b.y);
+  const cross = (o, a, b) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+  const lo = [], up = [];
+  for (const q of p) { while (lo.length >= 2 && cross(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); }
+  for (let i = p.length - 1; i >= 0; i--) { const q = p[i]; while (up.length >= 2 && cross(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }
+  return lo.slice(0, -1).concat(up.slice(0, -1));
+}
+function minAreaRect(H) {
+  let best = null; const n = H.length;
+  for (let i = 0; i < n; i++) {
+    const a = H[i], b = H[(i + 1) % n], L = Math.hypot(b.x - a.x, b.y - a.y); if (L < 1e-9) continue;
+    const ux = (b.x - a.x) / L, uy = (b.y - a.y) / L, vx = -uy, vy = ux;
+    let u0 = Infinity, u1 = -Infinity, v0 = Infinity, v1 = -Infinity;
+    for (const p of H) { const u = p.x * ux + p.y * uy, v = p.x * vx + p.y * vy; if (u < u0) u0 = u; if (u > u1) u1 = u; if (v < v0) v0 = v; if (v > v1) v1 = v; }
+    const A = (u1 - u0) * (v1 - v0);
+    if (!best || A < best.A) best = { A, ux, uy, vx, vy, u0, u1, v0, v1 };
+  }
+  const { ux, uy, vx, vy, u0, u1, v0, v1 } = best;
+  const P = (u, v) => ({ x: u * ux + v * vx, y: u * uy + v * vy });
+  const rect = [P(u0, v0), P(u1, v0), P(u1, v1), P(u0, v1)];
+  const du = u1 - u0, dv = v1 - v0, um = (u0 + u1) / 2, vm = (v0 + v1) / 2;
+  const A1 = [P(u0, vm), P(u1, vm)], A2 = [P(um, v0), P(um, v1)];
+  return du >= dv ? { rect, la: A1, sa: A2, lenPx: du, widPx: dv } : { rect, la: A2, sa: A1, lenPx: dv, widPx: du };
+}
+
+
+
+/* ========== 단계 이동, 끝내기 ========== */
+let curStep = 0;
+function updateProgress() {
+  const calOK = Object.keys(S.calib).length > 0;
+  const done = { 1: calOK, 2: !!M.img, 3: S.results.length > 0 };
+  document.querySelectorAll('#progress button').forEach(b => {
+    const s = +b.dataset.step;
+    b.classList.toggle('active', s === curStep);
+    b.classList.toggle('done', done[s] && s !== curStep);
+    b.querySelector('.dot').innerHTML = done[s] && s !== curStep ? icon('check', 'sm') : s;
+    b.disabled = curStep === 0;
+  });
+  document.querySelectorAll('#progress .bar').forEach(b => b.classList.toggle('done', !!done[+b.dataset.bar]));
+  $('#endBtn').hidden = curStep === 0;
+}
+function go(n) {
+  if (n === 3 && !M.img) { if (curStep !== 2) toast('먼저 측정할 사진을 넣어 주세요'); n = 2; }
+  if (n === 2 && !Object.keys(S.calib).length) { toast('먼저 1단계에서 보정해 주세요'); n = 1; }
+  curStep = n;
+  document.querySelectorAll('.step').forEach(s => s.classList.toggle('active', s.id === 'step' + n));
+  if (n === 0) renderHome();
+  if (n === 1) { renderCalib(); requestAnimationFrame(() => { calV.resize(); calV.fit(); }); }
+  if (n === 2) renderStep2();
+  if (n === 3) { renderMeasure(); requestAnimationFrame(() => { mV.resize(); mV.fit(); }); }
+  updateProgress();
+}
+document.querySelectorAll('#progress button').forEach(b => b.onclick = () => go(+b.dataset.step));
+$('#homeBtn').onclick = () => { if (curStep !== 0) go(0); };
+
+function resetAll() {
+  clearStored();
+  S = freshState(); stored = null; started = true;
+  [1, 4].forEach(m => { const s = cal.byMag[m]; if (s.url) URL.revokeObjectURL(s.url); cal.byMag[m] = { img: null, url: null, pts: [] }; });
+  cal.mag = 1;
+  P.img = null; P.url = null; P.mag = null;
+  Object.assign(M, { img: null, photoId: null, mag: null, target: '', pts: [], obj: null, seg: null });
+  calV.setImage(null); mV.setImage(null);
+  go(1);
+  toast('모두 지웠어요. 새로 시작해요!');
+}
+function endSession(onCancel) {
+  const n = S.results.length;
+  const body = n
+    ? `<p>보정값과 측정 결과 <b>${n}개</b>가 모두 지워져요.</p><div class="note warn" style="margin-top:10px">${icon('alert', 'sm')}<span>지우기 전에 결과를 CSV 파일로 저장해 두세요.</span></div>`
+    : '<p>보정값이 모두 지워져요. 끝낼까요?</p>';
+  const acts = [];
+  if (n) acts.push({ label: 'CSV 저장', keep: true, fn: b => { downloadCSV(); b.textContent = '✓ CSV 저장했어요'; } });
+  acts.push({ label: '모두 지우기', cls: 'danger', fn: resetAll });
+  acts.push({ label: '취소', fn: onCancel });
+  modal('측정 끝내기', body, acts);
+}
+$('#endBtn').onclick = () => endSession();
+
+/* ========== 처음 화면 ========== */
+let stored = null, started = false;
+function renderHome() {
+  $('#howto').innerHTML || ($('#howto').innerHTML = howSvgs());
+  const box = $('#homeAction');
+  if (started) {
+    box.innerHTML = `<button class="btn primary lg" style="width:auto;padding:0 28px" id="hContinue">계속하기${icon('arrow')}</button>`;
+    $('#hContinue').onclick = () => go(M.img ? 3 : Object.keys(S.calib).length ? 2 : 1);
+    return;
+  }
+  if (stored) {
+    const mags = MAGS.filter(m => stored.calib && stored.calib[m]).map(m => `${m}배율`).join(', ') || '없음';
+    box.innerHTML = `<div class="resume"><div class="info"><b>저장된 값이 있어요</b><p class="num">${stored.savedAt ? esc(whenText(stored.savedAt)) + ' · ' : ''}보정 ${mags} · 측정 ${(stored.results || []).length}개</p><p>다른 사람이 쓰던 값이면 [새로 시작]을 누르세요.</p></div>
+      <div class="acts"><button class="btn" id="hNew">새로 시작</button><button class="btn primary" id="hResume">이어서 하기${icon('arrow')}</button></div></div>`;
+    $('#hResume').onclick = () => { S = stored; started = true; go(Object.keys(S.calib).length ? 2 : 1); };
+    $('#hNew').onclick = () => {
+      if ((stored.results || []).length) { S = stored; endSession(() => { S = freshState(); }); }
+      else { clearStored(); stored = null; started = true; go(1); }
+    };
+  } else {
+    box.innerHTML = `<button class="btn primary lg" style="width:auto;padding:0 28px" id="hStart">시작하기${icon('arrow')}</button>`;
+    $('#hStart').onclick = () => { started = true; go(1); };
+  }
+}
+
+/* ========== 시작 ========== */
+storageOK = testStorage();
+if (!storageOK) $('#storageBanner').hidden = false;
+stored = readStored();
+if (stored && !(Object.keys(stored.calib || {}).length || (stored.results || []).length)) stored = null;
+go(0);
+</script>
+</body>
+</html>
